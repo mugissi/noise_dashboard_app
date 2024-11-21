@@ -16,19 +16,30 @@ st.set_page_config(
 gpg_password = st.secrets["general"]["GPG_PASSWORD"]
 
 # 암호화된 파일 경로 및 복호화된 출력 파일 경로 설정
-encrypted_file = "19_M1_S25_9002.csv.gpg"  # 암호화된 파일
-decrypted_file = "19_M1_S25_9002.csv"  # 복호화된 파일
-
-# GPG 복호화 명령 실행
-command = f"echo {gpg_password} | gpg --batch --yes --passphrase-fd 0 -o {decrypted_file} -d {encrypted_file}"
-subprocess.run(command, shell=True, check=True)
-
-# 복호화된 CSV 파일 읽기
-df = pd.read_csv(decrypted_file)
+encrypted_file_paths = {
+    '19_M1_S25_9002.csv': 'https://path_to_encrypted_file/19_M1_S25_9002.csv.gpg',
+    '20_Northing_avg.csv': 'https://path_to_encrypted_file/20_Northing_avg.csv.gpg'
+}
 
 # 사이드바 설정
 with st.sidebar:
     st.header("Noise Monitoring Dashboard")
+
+    # 드롭다운 메뉴로 암호화된 CSV 파일 선택
+    selected_encrypted_file = st.selectbox(
+        'Select an Encrypted CSV file:', list(encrypted_file_paths.keys())
+    )
+    
+    # 선택된 암호화된 파일 경로
+    encrypted_file_url = encrypted_file_paths[selected_encrypted_file]
+    decrypted_file = f"decrypted_{selected_encrypted_file}"
+
+    # GPG 복호화 명령 실행
+    command = f"echo {gpg_password} | gpg --batch --yes --passphrase-fd 0 -o {decrypted_file} -d {encrypted_file_url}"
+    subprocess.run(command, shell=True, check=True)
+
+    # 복호화된 CSV 파일 읽기
+    df = pd.read_csv(decrypted_file)
 
     # 거리 범위 필터 슬라이더
     min_distance, max_distance = st.slider(
