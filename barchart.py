@@ -106,13 +106,14 @@ graph_data = pd.DataFrame({
 graph_data['Station Pair'] = pd.Categorical(graph_data['Station Pair'], categories=graph_data['Station Pair'], ordered=True)
 
 # Dashboard Main Panel
-col = st.columns((2.5, 1), gap='medium')  # 순서를 바꿔서 1열이 막대그래프, 2열이 라인차트
+col = st.columns((1, 1), gap='medium')  # 두 개의 동일한 열로 구성, 하나는 그래프, 하나는 About
 
 with col[0]:
     # 막대그래프 그리기
     st.bar_chart(graph_data.set_index("Station Pair"))
 
- if 'df' in locals() and df is not None:
+    # 라인차트 그리기
+    if 'df' in locals() and df is not None:
         fig = go.Figure()
         
         # Plot Noise Level (dB)
@@ -148,8 +149,9 @@ with col[0]:
         st.write("Analyze the relationship between noise levels and speed across distances.")
     else:
         st.info("No data available. Please select a CSV file.")
-        
+
 with col[1]:
+    # About section
     with st.expander('About', expanded=True):
         st.write("1. Use the sidebar to select a CSV file.")
         st.write("2. Adjust filters to explore specific ranges of data.")
