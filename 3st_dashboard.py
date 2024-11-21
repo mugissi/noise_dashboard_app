@@ -13,7 +13,7 @@ st.set_page_config(
 # GitHub에서 CSV 파일을 읽기 위한 URL 설정
 csv_file_paths = {
     '19_M1_S25_9002.csv': 'https://github.com/mugissi/noise_dashboard_app/raw/noise.app/19_M1_S25_9002.csv',
-    '20_Northing_avg.csv': 'https://github.com/사용자이름/저장소명/raw/브랜치명/20_Northing_avg.csv'
+    '20_Northing_avg.csv': 'https://github.com/mugissi/noise_dashboard_app/raw/noise.app/20_Northing_avg.csv'
 }
 
 # Sidebar
