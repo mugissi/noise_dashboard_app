@@ -1,9 +1,23 @@
-import streamlit as st
+import subprocess
 import pandas as pd
 import numpy as np
-import subprocess
-import requests
+import streamlit as st
 
+# Streamlit Secrets에서 비밀번호 가져오기
+gpg_password = st.secrets["general"]["GPG_PASSWORD"]
+
+# 암호화된 파일과 복호화된 출력 파일 경로 설정
+encrypted_file = "19_M1_S25_9002.csv.gpg"  # GitHub에서 다운로드한 암호화된 파일
+decrypted_file = "19_M1_S25_9002.csv"  # 복호화된 파일
+
+# GPG 복호화 명령 실행
+command = f"echo {gpg_password} | gpg --batch --yes --passphrase-fd 0 -o {decrypted_file} -d {encrypted_file}"
+subprocess.run(command, shell=True, check=True)
+
+# 복호화된 CSV 파일 읽기
+df = pd.read_csv(decrypted_file)
+
+# StationDataProcessor 클래스 정의
 class StationDataProcessor:
     def __init__(self, file_path):
         """
@@ -53,47 +67,22 @@ class StationDataProcessor:
         
         return matched_distances
 
+# 데이터 프로세싱
+processor = StationDataProcessor(decrypted_file)  # 복호화된 파일을 사용
+station_pairs, station_btw_distance = processor.create_station_pairs()
+matched_distances = processor.get_matching_data(station_pairs, station_btw_distance, df)
+
+# `matched_distances`에서 Station Pair와 Average dB 데이터 추출
+graph_data = pd.DataFrame({
+    "Station Pair": [item['Station Pair'] for item in matched_distances],
+    "Average dB": [item['Average dB'] for item in matched_distances]
+})
+
 # Streamlit 시작
 st.title("Average Noise Levels by Station Pair")
 
-# 암호화된 파일 GitHub URL
-ENCRYPTED_FILE_URL = "https://github.com/your-username/your-repo/raw/main/your_data.csv.gpg"
-ENCRYPTED_FILE_PATH = "your_data.csv.gpg"
-DECRYPTED_FILE_PATH = "your_data.csv"
+# 막대그래프 그리기
+st.bar_chart(graph_data.set_index("Station Pair"))
 
-# 1. GitHub에서 암호화된 파일 다운로드
-response = requests.get(ENCRYPTED_FILE_URL)
-if response.status_code == 200:
-    with open(ENCRYPTED_FILE_PATH, "wb") as file:
-        file.write(response.content)
-    st.success("Encrypted file downloaded successfully!")
-else:
-    st.error("Failed to download the encrypted file.")
-
-# 2. 비밀번호로 복호화
-password = st.text_input("Enter the decryption password:", type="password")
-if password:
-    command = [
-        "gpg", "--batch", "--yes", "--passphrase", password,
-        "--output", DECRYPTED_FILE_PATH, "--decrypt", ENCRYPTED_FILE_PATH
-    ]
-    try:
-        subprocess.run(command, check=True)
-        st.success("File decrypted successfully!")
-        
-        # 3. 복호화된 CSV 파일 읽기
-        processor = StationDataProcessor(DECRYPTED_FILE_PATH)
-        station_pairs, station_btw_distance = processor.create_station_pairs()
-        df = pd.read_csv(DECRYPTED_FILE_PATH)
-        matched_distances = processor.get_matching_data(station_pairs, station_btw_distance, df)
-
-        # `matched_distances`에서 Station Pair와 Average dB 데이터 추출
-        graph_data = pd.DataFrame({
-            "Station Pair": [item['Station Pair'] for item in matched_distances],
-            "Average dB": [item['Average dB'] for item in matched_distances]
-        })
-
-        # 막대그래프 그리기
-        st.bar_chart(graph_data.set_index("Station Pair"))
-    except subprocess.CalledProcessError:
-        st.error("Decryption failed. Please check your password.")
+# 데이터 출력
+st.dataframe(df)  # Streamlit 대시보드에 복호화된 데이터 표시
