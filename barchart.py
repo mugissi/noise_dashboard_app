@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 
+url = 'https://github.com/mugissi/noise_dashboard_app/blob/noise.app/19_M1_S25_9002.csv'
+df = pd.read_csv(url)
+
 class StationDataProcessor:
     def __init__(self, file_path):
         """
@@ -51,8 +54,6 @@ class StationDataProcessor:
         
         return matched_distances
 
-# CSV 파일 경로
-file_path = "/content/drive/MyDrive/mrt/data extraction/19_M1_S25_9002.csv"
 
 # 데이터 프로세싱
 processor = StationDataProcessor(file_path)
