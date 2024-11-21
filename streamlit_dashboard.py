@@ -1,68 +1,9 @@
-import subprocess
+import streamlit as st
 import pandas as pd
 import numpy as np
-import streamlit as st
-import plotly.graph_objects as go
+import subprocess
+import requests
 
-# Streamlit 페이지 설정
-st.set_page_config(
-    page_title="Noise Monitoring Dashboard",
-    page_icon="🏂",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
-# Streamlit Secrets에서 GPG 비밀번호 불러오기
-gpg_password = st.secrets["general"]["GPG_PASSWORD"]
-
-# 암호화된 파일 경로 및 복호화된 출력 파일 경로 설정
-encrypted_file_paths = {
-    '19_M1_S25_9002.csv': 'https://path_to_encrypted_file/19_M1_S25_9002.csv.gpg',
-    '20_Northing_avg.csv': 'https://path_to_encrypted_file/20_Northing_avg.csv.gpg'
-}
-
-# 사이드바 설정
-with st.sidebar:
-    st.header("Noise Monitoring Dashboard")
-
-    # 드롭다운 메뉴로 암호화된 CSV 파일 선택
-    selected_encrypted_file = st.selectbox(
-        'Select an Encrypted CSV file:', list(encrypted_file_paths.keys())
-    )
-    
-    # 선택된 암호화된 파일 경로
-    encrypted_file_url = encrypted_file_paths[selected_encrypted_file]
-    decrypted_file = f"decrypted_{selected_encrypted_file}"
-
-    # GPG 복호화 명령 실행
-    command = f"echo {gpg_password} | gpg --batch --yes --passphrase-fd 0 -o {decrypted_file} -d {encrypted_file_url}"
-    
-    try:
-        # GPG 복호화 실행
-        result = subprocess.run(command, shell=True, check=True, capture_output=True, text=True)
-        st.write("Decryption successful.")
-        st.write(result.stdout)  # stdout 출력 확인
-    except subprocess.CalledProcessError as e:
-        st.error(f"GPG command failed: {e}")
-        st.write(f"stderr: {e.stderr}")
-        st.write(f"stdout: {e.stdout}")
-        st.stop()  # 오류 발생 시 실행 중지
-
-    # 복호화된 CSV 파일 읽기
-    df = pd.read_csv(decrypted_file)
-
-    # 거리 범위 필터 슬라이더
-    min_distance, max_distance = st.slider(
-        "Select Distance Range (m):",
-        min_value=int(df['distance'].min()),
-        max_value=int(df['distance'].max()),
-        value=(int(df['distance'].min()), int(df['distance'].max()))
-    )
-
-# 선택된 거리 범위에 맞춰 데이터 필터링
-filtered_df = df[(df['distance'] >= min_distance) & (df['distance'] <= max_distance)]
-
-# StationDataProcessor 클래스 정의
 class StationDataProcessor:
     def __init__(self, file_path):
         """
@@ -74,98 +15,85 @@ class StationDataProcessor:
 
     def create_station_pairs(self):
         """
-        역 쌍을 생성하고 NaN 값을 건너뛰어 역 쌍과 거리를 반환합니다.
+        역 쌍을 생성하는 메서드입니다.
+        NaN 값을 건너뛰고, 역 쌍 및 거리 값을 저장합니다.
         """
-        station_pairs = []
-        station_btw_distance = []
+        station_pairs = []  # 역 쌍을 저장할 리스트
+        station_btw_distance = []  # 역 거리 값을 저장할 리스트
         
         for i in range(len(self.codes) - 1):
+            # NaN 또는 빈 값이 있는 경우 건너뜁니다.
             if pd.isna(self.codes[i]) or pd.isna(self.codes[i + 1]) or pd.isna(self.station_distances[i]) or pd.isna(self.station_distances[i + 1]):
                 continue
-            pair = f"{self.codes[i]} - {self.codes[i + 1]}"
-            distance_pair = (self.station_distances[i], self.station_distances[i + 1])
+            pair = f"{self.codes[i]} - {self.codes[i + 1]}"  # 역 코드로 쌍 만들기
+            distance_pair = (self.station_distances[i], self.station_distances[i + 1])  # 해당 역쌍의 거리 값
             station_pairs.append(pair)
             station_btw_distance.append(distance_pair)
 
-        return station_pairs, station_btw_distance
+        return station_pairs, station_btw_distance  # 역 쌍 및 거리 반환
 
     def get_matching_data(self, station_pairs, station_btw_distance, df):
         """
-        역 쌍에 맞는 거리 범위에서의 'distance', 'dB', 'speed' 데이터를 필터링하여
+        역 쌍에 해당하는 거리 범위에 맞는 거리, dB, speed 데이터를 필터링하여
         'Station Pair'와 함께 반환합니다.
         """
-        matched_distances = []
+        matched_distances = []  # 최종 결과를 저장할 리스트
         
         for pair, (start_distance, end_distance) in zip(station_pairs, station_btw_distance):
+            # 해당 역쌍의 거리 범위에 맞는 데이터 필터링
             matching_data = df[(df['distance'] >= start_distance) & (df['distance'] <= end_distance)]
+            
+            # 필터링된 'distance', 'dB', 'speed' 데이터를 리스트에 추가
             matched_distances.append({
                 'Station Pair': pair,
                 'Matching Distances': matching_data[['distance', 'dB', 'speed']].values,
-                'Average dB': np.mean(matching_data['dB']),
-                'Max dB': np.max(matching_data['dB'])
+                'Average dB': np.mean(matching_data['dB']),  # 평균 dB
+                'Max dB': np.max(matching_data['dB'])  # 최댓값 dB
             })
         
         return matched_distances
 
-# 데이터 처리
-processor = StationDataProcessor(decrypted_file)
-station_pairs, station_btw_distance = processor.create_station_pairs()
-matched_distances = processor.get_matching_data(station_pairs, station_btw_distance, df)
+# Streamlit 시작
+st.title("Average Noise Levels by Station Pair")
 
-# 평균 dB 및 역 쌍 데이터를 DataFrame으로 변환
-graph_data = pd.DataFrame({
-    "Station Pair": [item['Station Pair'] for item in matched_distances],
-    "Average dB": [item['Average dB'] for item in matched_distances]
-})
+# 암호화된 파일 GitHub URL
+ENCRYPTED_FILE_URL = "https://github.com/your-username/your-repo/raw/main/your_data.csv.gpg"
+ENCRYPTED_FILE_PATH = "your_data.csv.gpg"
+DECRYPTED_FILE_PATH = "your_data.csv"
 
-# 대시보드 메인 화면
-col = st.columns((2, 1), gap='medium')
+# 1. GitHub에서 암호화된 파일 다운로드
+response = requests.get(ENCRYPTED_FILE_URL)
+if response.status_code == 200:
+    with open(ENCRYPTED_FILE_PATH, "wb") as file:
+        file.write(response.content)
+    st.success("Encrypted file downloaded successfully!")
+else:
+    st.error("Failed to download the encrypted file.")
 
-with col[0]:
-    # 필터링된 데이터로 그래프 그리기
-    if 'df' in locals() and df is not None:
-        fig = go.Figure()
+# 2. 비밀번호로 복호화
+password = st.text_input("Enter the decryption password:", type="password")
+if password:
+    command = [
+        "gpg", "--batch", "--yes", "--passphrase", password,
+        "--output", DECRYPTED_FILE_PATH, "--decrypt", ENCRYPTED_FILE_PATH
+    ]
+    try:
+        subprocess.run(command, check=True)
+        st.success("File decrypted successfully!")
         
-        # Noise Level (dB) 그래프
-        fig.add_trace(go.Scatter(
-            x=filtered_df['distance'],
-            y=filtered_df['dB'],
-            mode='lines',
-            name='Noise Level (dB)',
-            yaxis="y1"
-        ))
-        
-        # Speed (km/h) 그래프
-        fig.add_trace(go.Scatter(
-            x=filtered_df['distance'],
-            y=filtered_df['speed'],
-            mode='lines',
-            name='Speed (km/h)',
-            yaxis="y2"
-        ))
-        
-        # 그래프 레이아웃 설정
-        fig.update_layout(
-            title="Noise Levels and Speed Over Distance",
-            xaxis=dict(title="Distance (m)"),
-            yaxis=dict(title="Noise Level (dB)", side="left"),
-            yaxis2=dict(title="Speed (km/h)", overlaying="y", side="right"),
-            height=600
-        )
-        
-        st.title("Noise Levels and Speed Dashboard")
-        st.plotly_chart(fig, use_container_width=True)
-        st.markdown("### Insights:")
-        st.write("Analyze the relationship between noise levels and speed across distances.")
-    else:
-        st.info("No data available. Please select a CSV file.")
+        # 3. 복호화된 CSV 파일 읽기
+        processor = StationDataProcessor(DECRYPTED_FILE_PATH)
+        station_pairs, station_btw_distance = processor.create_station_pairs()
+        df = pd.read_csv(DECRYPTED_FILE_PATH)
+        matched_distances = processor.get_matching_data(station_pairs, station_btw_distance, df)
 
-# 막대 그래프 표시
-st.bar_chart(graph_data.set_index("Station Pair"))
+        # `matched_distances`에서 Station Pair와 Average dB 데이터 추출
+        graph_data = pd.DataFrame({
+            "Station Pair": [item['Station Pair'] for item in matched_distances],
+            "Average dB": [item['Average dB'] for item in matched_distances]
+        })
 
-# 오른쪽 패널 (대시보드 정보)
-with col[1]:
-    with st.expander('About', expanded=True):
-        st.write("1. Use the sidebar to select a CSV file.")
-        st.write("2. Adjust filters to explore specific ranges of data.")
-        st.write("3. Analyze the graphs for insights on noise levels and speed.")
+        # 막대그래프 그리기
+        st.bar_chart(graph_data.set_index("Station Pair"))
+    except subprocess.CalledProcessError:
+        st.error("Decryption failed. Please check your password.")
