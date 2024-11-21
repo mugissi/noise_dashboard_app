@@ -53,7 +53,7 @@ class StationDataProcessor:
     def create_station_pairs(self):
         """
         역 쌍을 생성하는 메서드입니다.
-        NaN 값을 건너뛰고, 역 쌍 및 거리 값을 저장합니다.
+        NaN 값을 건너뜁니다.
         """
         station_pairs = []  # 역 쌍을 저장할 리스트
         station_btw_distance = []  # 역 거리 값을 저장할 리스트
@@ -68,7 +68,7 @@ class StationDataProcessor:
             station_btw_distance.append(distance_pair)
 
         return station_pairs, station_btw_distance  # 역 쌍 및 거리 반환
-
+    
     def get_matching_data(self, station_pairs, station_btw_distance, df):
         """
         역 쌍에 해당하는 거리 범위에 맞는 거리, dB, speed 데이터를 필터링하여
@@ -101,6 +101,9 @@ graph_data = pd.DataFrame({
     "Station Pair": [item['Station Pair'] for item in matched_distances],
     "Average dB": [item['Average dB'] for item in matched_distances]
 })
+
+# Station Pair의 순서를 맞추기 위해 Categorical 사용
+graph_data['Station Pair'] = pd.Categorical(graph_data['Station Pair'], categories=graph_data['Station Pair'], ordered=True)
 
 # Dashboard Main Panel
 col = st.columns((2, 1), gap='medium')
