@@ -106,7 +106,7 @@ graph_data = pd.DataFrame({
 graph_data['Station Pair'] = pd.Categorical(graph_data['Station Pair'], categories=graph_data['Station Pair'], ordered=True)
 
 # Dashboard Main Panel
-col = st.columns((1, 1), gap='medium')  # 두 개의 동일한 열로 구성, 하나는 그래프, 하나는 About
+col = st.columns((3, 1), gap='medium')  # 두 개의 동일한 열로 구성, 하나는 그래프, 하나는 About
 
 with col[0]:
     # 막대그래프 그리기
