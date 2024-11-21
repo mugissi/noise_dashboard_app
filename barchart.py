@@ -141,8 +141,8 @@ with col[0]:
         
         st.title("Noise Levels and Speed Dashboard")
         st.plotly_chart(fig, use_container_width=True)
-        st.markdown("### Insights:")
-        st.write("Analyze the relationship between noise levels and speed across distances.")
+        st.markdown("Bar Charts")
+        st.write("Average noise between each station")
     else:
         st.info("No data available. Please select a CSV file.")
 
