@@ -117,13 +117,13 @@ graph_data = pd.DataFrame({
 graph_data['Station Pair'] = pd.Categorical(graph_data['Station Pair'], categories=graph_data['Station Pair'], ordered=True)
 
 # Dashboard Main Panel
-col = st.columns((1, 2), gap='medium')  # 순서를 바꿔서 1열이 막대그래프, 2열이 라인차트
+col = st.columns((2, 1), gap='medium')  # 순서를 바꿔서 1열이 막대그래프, 2열이 라인차트
 
 with col[0]:
     # 막대그래프 그리기
     st.bar_chart(graph_data.set_index("Station Pair"))
     
-with col[1]:
+
     if 'df' in locals() and df is not None:
         fig = go.Figure()
         
@@ -160,7 +160,7 @@ with col[1]:
         st.write("Analyze the relationship between noise levels and speed across distances.")
     else:
         st.info("No data available. Please select a CSV file.")
-
+with col[1]:
     with st.expander('About', expanded=True):
         st.write("1. Use the sidebar to select a CSV file.")
         st.write("2. Adjust filters to explore specific ranges of data.")
