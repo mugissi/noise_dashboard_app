@@ -1,9 +1,44 @@
-import streamlit as st
 import pandas as pd
-import numpy as np
+import plotly.graph_objects as go
+import streamlit as st
 
-url = 'https://github.com/mugissi/noise_dashboard_app/raw/noise.app/19_M1_S25_9002.csv'
-df = pd.read_csv(url)
+# Page configuration
+st.set_page_config(
+    page_title="Noise Monitoring Dashboard",
+    page_icon="🏂",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# GitHub에서 CSV 파일을 읽기 위한 URL 설정
+csv_file_paths = {
+    '19_M1_S25_9002.csv': 'https://github.com/mugissi/noise_dashboard_app/raw/noise.app/19_M1_S25_9002.csv',
+    '20_Northing_avg.csv': 'https://github.com/mugissi/noise_dashboard_app/raw/noise.app/20_Northing_avg.csv'
+}
+
+# Sidebar
+with st.sidebar:
+    st.header("Noise Monitoring Dashboard")
+
+    # Use a selectbox to display the file options more clearly
+    selected_csv_name = st.sidebar.selectbox(
+        'Select a CSV file:', ['19_M1_S25_9002.csv', '20_Northing_avg.csv']
+    )
+    selected_csv_url = csv_file_paths[selected_csv_name]  # Get the corresponding file URL
+
+    # Read the selected CSV file from GitHub URL
+    df = pd.read_csv(selected_csv_url)
+
+    # Add a slider to filter distance range
+    min_distance, max_distance = st.slider(
+        "Select Distance Range (m):",
+        min_value=int(df['distance'].min()),
+        max_value=int(df['distance'].max()),
+        value=(int(df['distance'].min()), int(df['distance'].max()))
+    )
+
+# Filter the dataframe based on the selected distance range
+filtered_df = df[(df['distance'] >= min_distance) & (df['distance'] <= max_distance)]
 
 class StationDataProcessor:
     def __init__(self, file_path):
@@ -54,13 +89,10 @@ class StationDataProcessor:
         
         return matched_distances
 
-# 파일 경로를 raw URL로 설정
-file_path = "https://github.com/mugissi/noise_dashboard_app/raw/noise.app/19_M1_S25_9002.csv"
-
 # 데이터 프로세싱
-processor = StationDataProcessor(file_path)
+processor = StationDataProcessor(selected_csv_url)
 station_pairs, station_btw_distance = processor.create_station_pairs()
-df = pd.read_csv(file_path)
+df = pd.read_csv(selected_csv_url)
 matched_distances = processor.get_matching_data(station_pairs, station_btw_distance, df)
 
 # `matched_distances`에서 Station Pair와 Average dB 데이터 추출
@@ -69,8 +101,52 @@ graph_data = pd.DataFrame({
     "Average dB": [item['Average dB'] for item in matched_distances]
 })
 
-# Streamlit 시작
-st.title("Average Noise Levels by Station Pair")
+# Dashboard Main Panel
+col = st.columns((2, 1), gap='medium')
+
+with col[0]:
+    if 'df' in locals() and df is not None:
+        fig = go.Figure()
+        
+        # Plot Noise Level (dB)
+        fig.add_trace(go.Scatter(
+            x=filtered_df['distance'],
+            y=filtered_df['dB'],
+            mode='lines',
+            name='Noise Level (dB)',
+            yaxis="y1"
+        ))
+        
+        # Plot Speed (km/h)
+        fig.add_trace(go.Scatter(
+            x=filtered_df['distance'],
+            y=filtered_df['speed'],
+            mode='lines',
+            name='Speed (km/h)',
+            yaxis="y2"
+        ))
+        
+        # Update layout with dual y-axes
+        fig.update_layout(
+            title="Noise Levels and Speed Over Distance",
+            xaxis=dict(title="Distance (m)"),
+            yaxis=dict(title="Noise Level (dB)", side="left"),
+            yaxis2=dict(title="Speed (km/h)", overlaying="y", side="right"),
+            height=600  # width removed
+        )
+        
+        st.title("Noise Levels and Speed Dashboard")
+        st.plotly_chart(fig, use_container_width=True)
+        st.markdown("### Insights:")
+        st.write("Analyze the relationship between noise levels and speed across distances.")
+    else:
+        st.info("No data available. Please select a CSV file.")
 
 # 막대그래프 그리기
 st.bar_chart(graph_data.set_index("Station Pair"))
+
+with col[1]:
+    with st.expander('About', expanded=True):
+        st.write("1. Use the sidebar to select a CSV file.")
+        st.write("2. Adjust filters to explore specific ranges of data.")
+        st.write("3. Analyze the graphs for insights on noise levels and speed.")
