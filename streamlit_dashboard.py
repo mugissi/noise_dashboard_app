@@ -1,7 +1,23 @@
-import streamlit as st
+import subprocess
 import pandas as pd
 import numpy as np
+import streamlit as st
 
+# Streamlit Secrets에서 비밀번호 가져오기
+gpg_password = st.secrets["general"]["GPG_PASSWORD"]
+
+# 암호화된 파일과 복호화된 출력 파일 경로 설정
+encrypted_file = "19_M1_S25_9002.csv.gpg"  # GitHub에서 다운로드한 암호화된 파일
+decrypted_file = "19_M1_S25_9002.csv"  # 복호화된 파일
+
+# GPG 복호화 명령 실행
+command = f"echo {gpg_password} | gpg --batch --yes --passphrase-fd 0 -o {decrypted_file} -d {encrypted_file}"
+subprocess.run(command, shell=True, check=True)
+
+# 복호화된 CSV 파일 읽기
+df = pd.read_csv(decrypted_file)
+
+# StationDataProcessor 클래스 정의
 class StationDataProcessor:
     def __init__(self, file_path):
         """
@@ -51,13 +67,9 @@ class StationDataProcessor:
         
         return matched_distances
 
-# CSV 파일 경로
-file_path = "/content/drive/MyDrive/mrt/data extraction/19_M1_S25_9002.csv"
-
 # 데이터 프로세싱
-processor = StationDataProcessor(file_path)
+processor = StationDataProcessor(decrypted_file)  # 복호화된 파일을 사용
 station_pairs, station_btw_distance = processor.create_station_pairs()
-df = pd.read_csv(file_path)
 matched_distances = processor.get_matching_data(station_pairs, station_btw_distance, df)
 
 # `matched_distances`에서 Station Pair와 Average dB 데이터 추출
@@ -71,3 +83,6 @@ st.title("Average Noise Levels by Station Pair")
 
 # 막대그래프 그리기
 st.bar_chart(graph_data.set_index("Station Pair"))
+
+# 데이터 출력
+st.dataframe(df)  # Streamlit 대시보드에 복호화된 데이터 표시
