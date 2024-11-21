@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 
-url = 'https://github.com/mugissi/noise_dashboard_app/blob/noise.app/19_M1_S25_9002.csv'
+url = 'https://github.com/mugissi/noise_dashboard_app/raw/noise.app/19_M1_S25_9002.csv'
 df = pd.read_csv(url)
 
 class StationDataProcessor:
