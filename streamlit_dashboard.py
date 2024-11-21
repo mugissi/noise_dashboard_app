@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import subprocess
+import requests
 
 class StationDataProcessor:
     def __init__(self, file_path):
@@ -51,23 +53,47 @@ class StationDataProcessor:
         
         return matched_distances
 
-# CSV 파일 경로
-file_path = "/content/drive/MyDrive/mrt/data extraction/19_M1_S25_9002.csv"
-
-# 데이터 프로세싱
-processor = StationDataProcessor(file_path)
-station_pairs, station_btw_distance = processor.create_station_pairs()
-df = pd.read_csv(file_path)
-matched_distances = processor.get_matching_data(station_pairs, station_btw_distance, df)
-
-# `matched_distances`에서 Station Pair와 Average dB 데이터 추출
-graph_data = pd.DataFrame({
-    "Station Pair": [item['Station Pair'] for item in matched_distances],
-    "Average dB": [item['Average dB'] for item in matched_distances]
-})
-
 # Streamlit 시작
 st.title("Average Noise Levels by Station Pair")
 
-# 막대그래프 그리기
-st.bar_chart(graph_data.set_index("Station Pair"))
+# 암호화된 파일 GitHub URL
+ENCRYPTED_FILE_URL = "https://github.com/your-username/your-repo/raw/main/your_data.csv.gpg"
+ENCRYPTED_FILE_PATH = "your_data.csv.gpg"
+DECRYPTED_FILE_PATH = "your_data.csv"
+
+# 1. GitHub에서 암호화된 파일 다운로드
+response = requests.get(ENCRYPTED_FILE_URL)
+if response.status_code == 200:
+    with open(ENCRYPTED_FILE_PATH, "wb") as file:
+        file.write(response.content)
+    st.success("Encrypted file downloaded successfully!")
+else:
+    st.error("Failed to download the encrypted file.")
+
+# 2. 비밀번호로 복호화
+password = st.text_input("Enter the decryption password:", type="password")
+if password:
+    command = [
+        "gpg", "--batch", "--yes", "--passphrase", password,
+        "--output", DECRYPTED_FILE_PATH, "--decrypt", ENCRYPTED_FILE_PATH
+    ]
+    try:
+        subprocess.run(command, check=True)
+        st.success("File decrypted successfully!")
+        
+        # 3. 복호화된 CSV 파일 읽기
+        processor = StationDataProcessor(DECRYPTED_FILE_PATH)
+        station_pairs, station_btw_distance = processor.create_station_pairs()
+        df = pd.read_csv(DECRYPTED_FILE_PATH)
+        matched_distances = processor.get_matching_data(station_pairs, station_btw_distance, df)
+
+        # `matched_distances`에서 Station Pair와 Average dB 데이터 추출
+        graph_data = pd.DataFrame({
+            "Station Pair": [item['Station Pair'] for item in matched_distances],
+            "Average dB": [item['Average dB'] for item in matched_distances]
+        })
+
+        # 막대그래프 그리기
+        st.bar_chart(graph_data.set_index("Station Pair"))
+    except subprocess.CalledProcessError:
+        st.error("Decryption failed. Please check your password.")
