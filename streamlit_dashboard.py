@@ -57,7 +57,7 @@ class StationDataProcessor:
 st.title("Average Noise Levels by Station Pair")
 
 # 암호화된 파일 GitHub URL
-ENCRYPTED_FILE_URL = "https://github.com/your-username/your-repo/raw/main/your_data.csv.gpg"
+ENCRYPTED_FILE_URL = "https://github.com/mugissi/noise_dashboard_app/raw/main/19_M1_S25_9002.csv.gpg"
 ENCRYPTED_FILE_PATH = "your_data.csv.gpg"
 DECRYPTED_FILE_PATH = "your_data.csv"
 
