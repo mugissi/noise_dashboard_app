@@ -55,7 +55,7 @@ class StationDataProcessor:
         return matched_distances
 
 # 파일 경로를 raw URL로 설정
-file_path = "https://github.com/mugissi/noise_dashboard_app/raw/noise.app/19_M1_S25_9002.csv"
+file_path = "https://github.com/mugissi/noise_dashboard_app/noise.app/19_M1_S25_9002.csv"
 
 # 데이터 프로세싱
 processor = StationDataProcessor(file_path)
