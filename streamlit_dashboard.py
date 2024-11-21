@@ -36,7 +36,17 @@ with st.sidebar:
 
     # GPG 복호화 명령 실행
     command = f"echo {gpg_password} | gpg --batch --yes --passphrase-fd 0 -o {decrypted_file} -d {encrypted_file_url}"
-    subprocess.run(command, shell=True, check=True)
+    
+    try:
+        # GPG 복호화 실행
+        result = subprocess.run(command, shell=True, check=True, capture_output=True, text=True)
+        st.write("Decryption successful.")
+        st.write(result.stdout)  # stdout 출력 확인
+    except subprocess.CalledProcessError as e:
+        st.error(f"GPG command failed: {e}")
+        st.write(f"stderr: {e.stderr}")
+        st.write(f"stdout: {e.stdout}")
+        st.stop()  # 오류 발생 시 실행 중지
 
     # 복호화된 CSV 파일 읽기
     df = pd.read_csv(decrypted_file)
