@@ -56,9 +56,13 @@ with st.sidebar:
 
     except Exception as e:
         st.error(f"Error during decryption or CSV loading: {e}")
+        df = pd.DataFrame()  # 에러 발생 시 빈 데이터프레임 생성
 
 # Filter the dataframe based on the selected distance range
-filtered_df = df[(df['distance'] >= min_distance) & (df['distance'] <= max_distance)]
+if not df.empty:
+    filtered_df = df[(df['distance'] >= min_distance) & (df['distance'] <= max_distance)]
+else:
+    filtered_df = pd.DataFrame()  # df가 비어있으면 빈 데이터프레임 생성
 
 # 데이터 준비 클래스 정의
 class StationDataProcessor:
@@ -68,6 +72,9 @@ class StationDataProcessor:
         """
         # GitHub에서 파일 다운로드
         response = requests.get(file_url)
+        if response.status_code != 200:
+            raise Exception(f"Failed to download file: {file_url}")
+
         content = response.text  # CSV 파일의 텍스트 내용
 
         # CSV 데이터 프레임으로 변환
