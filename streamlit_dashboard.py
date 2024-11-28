@@ -21,33 +21,40 @@ csv_file_paths = {
 # Streamlit Secrets에서 비밀번호 가져오기
 gpg_password = st.secrets["general"]["GPG_PASSWORD"]
 
-# Sidebar
+# Sidebar for file selection
 with st.sidebar:
     st.header("Noise Monitoring Dashboard")
 
-    # Use a selectbox to display the file options more clearly
-    selected_csv_name = st.sidebar.selectbox(
+    selected_csv_name = st.selectbox(
         'Select an Encrypted CSV file:', ['19_M1_S25_9002.csv.gpg', '20_Northing_avg.csv.gpg']
     )
-    selected_csv_url = csv_file_paths[selected_csv_name]  # Get the corresponding file URL
+    selected_csv_url = csv_file_paths[selected_csv_name]  # Corresponding file URL
 
-    # 암호화된 파일을 다운로드 후 GPG 복호화 실행
+    # Decrypt the file using GPG
     encrypted_file = selected_csv_name
-    decrypted_file = f"decrypted_{selected_csv_name.replace('.gpg', '.csv')}"  # 복호화된 파일 이름 설정
+    decrypted_file = f"decrypted_{selected_csv_name.replace('.gpg', '.csv')}"
 
-    # GPG 복호화 명령 실행
+    # Run decryption command
     command = f"echo {gpg_password} | gpg --batch --yes --passphrase-fd 0 -o {decrypted_file} -d {encrypted_file}"
     subprocess.run(command, shell=True, check=True)
 
-    # 복호화된 CSV 파일 읽기
+    # Load the decrypted CSV file
     df = pd.read_csv(decrypted_file)
 
-# 데이터 준비 클래스 정의
+    # Add a slider to filter distance range
+    min_distance, max_distance = st.slider(
+        "Select Distance Range (m):",
+        min_value=int(df['distance'].min()),
+        max_value=int(df['distance'].max()),
+        value=(int(df['distance'].min()), int(df['distance'].max()))
+    )
+
+# Filter the dataframe based on the selected distance range
+filtered_df = df[(df['distance'] >= min_distance) & (df['distance'] <= max_distance)]
+
+# Data Processing Class
 class StationDataProcessor:
     def __init__(self, df):
-        """
-        주어진 CSV 데이터프레임을 초기화합니다.
-        """
         self.data_frame = df
         self.codes = self.data_frame['code'].values
         self.stations = self.data_frame['station'].values
@@ -55,67 +62,53 @@ class StationDataProcessor:
         self.distances = self.data_frame['distance'].values
         self.dBs = self.data_frame['dB'].values
         self.speeds = self.data_frame['speed'].values
-
-        # 역 쌍 생성
-        self.station_pairs = []  # 역 쌍 리스트
-        self.station_btw_distance = []  # 역 거리 리스트
+        self.station_pairs = []
+        self.station_btw_distance = []
         self.create_station_pairs()
 
     def create_station_pairs(self):
-        """
-        역 쌍을 생성하는 메서드입니다.
-        NaN 값을 건너뛰고, 역 쌍 및 거리 값을 저장합니다.
-        """
         for i in range(len(self.codes) - 1):
             if pd.isna(self.codes[i]) or pd.isna(self.codes[i + 1]) or pd.isna(self.station_distances[i]) or pd.isna(self.station_distances[i + 1]):
                 continue
-            pair = f"{self.codes[i]} - {self.codes[i + 1]}"  # 역 코드로 쌍 만들기
-            distance_pair = (self.station_distances[i], self.station_distances[i + 1])  # 해당 역쌍의 거리 값
+            pair = f"{self.codes[i]} - {self.codes[i + 1]}"
+            distance_pair = (self.station_distances[i], self.station_distances[i + 1])
             self.station_pairs.append(pair)
             self.station_btw_distance.append(distance_pair)
 
     def get_filtered_data(self, min_speed):
-        """
-        속도 기준으로 데이터를 필터링하는 메서드
-        """
-        filtered_data = self.data_frame[self.data_frame['speed'] >= min_speed]
-        return filtered_data
+        return self.data_frame[self.data_frame['speed'] >= min_speed]
 
     def get_station_intervals(self, filtered_data):
-        """
-        역쌍에 대해 평균 소음과 최대 소음을 계산하는 메서드
-        """
-        station_intervals = []  # 역 구간 정보를 저장할 리스트 초기화
+        station_intervals = []
         for pair, (start_distance, end_distance) in zip(self.station_pairs, self.station_btw_distance):
-            # 역 쌍에 맞는 데이터 필터링
             main_line_between = filtered_data[(filtered_data['distance'] >= start_distance) & (filtered_data['distance'] <= end_distance)]
-            if not main_line_between.empty:  # 필터링된 데이터가 비어 있지 않으면
-                average_noise = main_line_between['dB'].mean()  # 평균 소음 계산
-                maximum_noise = main_line_between['dB'].max()  # 최대 소음 계산
-            else:  # 데이터가 비어 있으면
-                average_noise = 0  # 평균 소음 0으로 설정
-                maximum_noise = 0  # 최대 소음 0으로 설정
-            station_intervals.append({  # 역 구간 정보를 리스트에 추가
-                'Station Pair': pair,  # 역 쌍
-                'Average Noise (dBA)': average_noise,  # 평균 소음
-                'Maximum Noise (dBA)': maximum_noise  # 최대 소음
+            if not main_line_between.empty:
+                average_noise = main_line_between['dB'].mean()
+                maximum_noise = main_line_between['dB'].max()
+            else:
+                average_noise = 0
+                maximum_noise = 0
+            station_intervals.append({
+                'Station Pair': pair,
+                'Average Noise (dBA)': average_noise,
+                'Maximum Noise (dBA)': maximum_noise
             })
         return pd.DataFrame(station_intervals)
 
-# Streamlit 애플리케이션
+# Streamlit App Header
 st.title("Noise Monitoring Dashboard")
 
-# 데이터 프로세싱
-processor = StationDataProcessor(df)
+# Process Data
+processor = StationDataProcessor(filtered_df)
 
-# 최소 속도를 사용자 입력으로 받음
+# Input for Minimum Speed
 min_speed = st.number_input("Minimum Speed (km/h):", min_value=0, max_value=300, value=70)
 
-# 필터링된 데이터와 역 구간 데이터를 가져오기
+# Get filtered data and station intervals
 filtered_data = processor.get_filtered_data(min_speed)
 station_intervals_df = processor.get_station_intervals(filtered_data)
 
-# 그래프 생성
+# Create Plotly Figure
 fig = go.Figure()
 fig.add_trace(go.Bar(
     x=station_intervals_df['Station Pair'],
@@ -129,12 +122,24 @@ fig.add_trace(go.Bar(
     name='Average Noise (dBA)',
     marker_color='#C0C0C0'
 ))
+
 fig.update_layout(
-    title=f"Average and Maximum Noise Levels at Speed Above {min_speed} km/h",
-    xaxis_title="Station",
+    title=f"Noise Levels (Avg and Max) at Speed Above {min_speed} km/h",
+    xaxis_title="Station Pair",
     yaxis_title="Noise Level (dBA)",
-    barmode='overlay'
+    barmode='stack',  # Changed to stack for better visualization
+    height=600
 )
 
-# Streamlit에서 그래프 표시
+# Display Plotly Chart
 st.plotly_chart(fig, use_container_width=True)
+
+# Insights Section
+st.markdown("### Insights:")
+st.write("This graph visualizes the average and maximum noise levels at selected station pairs based on speed and distance filters.")
+
+# About Section
+with st.expander('About', expanded=True):
+    st.write("1. Select a CSV file from the sidebar.")
+    st.write("2. Adjust the filters to explore specific ranges of data.")
+    st.write("3. The graphs show insights on noise levels in relation to speed and distance.")
