@@ -59,8 +59,6 @@ class StationDataProcessor:
         self.data_frame = pd.read_csv(file_path)
         self.codes = self.data_frame['code'].values
         self.station_distances = self.data_frame['station distance'].values
-        self.station_pairs = []  # 초기화
-        self.station_btw_distance = []  # 초기화
 
     def create_station_pairs(self):
         station_pairs = []
@@ -74,9 +72,8 @@ class StationDataProcessor:
             station_pairs.append(pair)
             station_btw_distance.append(distance_pair)
 
-        # 생성한 데이터를 인스턴스 속성으로 저장
-        self.station_pairs = station_pairs
-        self.station_btw_distance = station_btw_distance
+        return station_pairs, station_btw_distance  # 반환값 추가
+
 
     def get_station_intervals(self, filtered_data):
         station_intervals = []
