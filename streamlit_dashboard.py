@@ -1,3 +1,7 @@
+##################세번째 완성본######################
+
+
+
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
@@ -120,7 +124,8 @@ st.title("Noise Monitoring Dashboard")
 processor = StationDataProcessor(df)
 
 # 최소 속도를 사용자 입력으로 받음
-min_speed = st.number_input("Minimum Speed (km/h):", min_value=0, max_value=300, value=70)
+st.markdown("### Minimum Speed (km/h):")
+min_speed = st.number_input("Minimum Speed (km/h):", min_value=0, max_value=100, value=50)
 
 # 필터링된 데이터와 역 구간 데이터를 가져오기
 filtered_data = processor.get_filtered_data(min_speed)
