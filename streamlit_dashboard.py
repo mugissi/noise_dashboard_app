@@ -55,8 +55,7 @@ st.title("Noise Monitoring Dashboard")
 
 # 드롭다운 옵션에 사용할 CSV 파일들
 csv_files = {
-    "Sample Data 1": "data/sample_data_1.csv",
-    "Sample Data 2": "data/sample_data_2.csv"
+    "Norting_avg": "https://github.com/mugissi/noise_dashboard_app/blob/main/20_Northing_avg.csv"
 }
 
 # 드롭다운 메뉴에서 파일 선택
