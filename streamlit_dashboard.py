@@ -75,8 +75,7 @@ st.title("Noise Monitoring Dashboard")
 
 # 드롭다운을 위한 파일 URL 목록
 csv_file_urls = {
-    "File 1: Sample Data 1": "https://github.com/mugissi/noise_dashboard_app/raw/noise.app/19_M1_S25_9002.csv.gpg",
-    "File 2: Sample Data 2": "https://github.com/mugissi/noise_dashboard_app/raw/noise.app/20_Northing_avg.csv.gpg"
+    "File 2: Sample Data 2": "https://github.com/mugissi/noise_dashboard_app/raw/noise.app/20_Northing_avg.csv."
 }
 
 # 드롭다운 메뉴 생성
