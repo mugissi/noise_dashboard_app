@@ -45,6 +45,17 @@ with st.sidebar:
     # 복호화된 CSV 파일 읽기
     df = pd.read_csv(decrypted_file)
 
+# Add a slider to filter distance range
+    min_distance, max_distance = st.slider(
+        "Select Distance Range (m):",
+        min_value=int(df['distance'].min()),
+        max_value=int(df['distance'].max()),
+        value=(int(df['distance'].min()), int(df['distance'].max()))
+    )
+
+# Filter the dataframe based on the selected distance range
+filtered_df = df[(df['distance'] >= min_distance) & (df['distance'] <= max_distance)]
+
 # 데이터 준비 클래스 정의
 class StationDataProcessor:
     def __init__(self, df):
@@ -138,6 +149,12 @@ fig.update_layout(
     yaxis_title="Noise Level (dBA)",
     barmode='overlay'
 )
+st.title("Noise Levels and Speed Dashboard")
+        st.plotly_chart(fig, use_container_width=True)
+        st.markdown("### Insights:")
+        st.write("Analyze the relationship between noise levels and speed across distances.")
+    else:
+        st.info("No data available. Please select a CSV file.")
 
 # Streamlit에서 그래프 표시
 st.plotly_chart(fig, use_container_width=True)
