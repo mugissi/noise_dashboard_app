@@ -119,15 +119,18 @@ st.title("Noise Monitoring Dashboard")
 # 데이터 프로세싱
 processor = StationDataProcessor(df)
 
-# 최소 속도를 사용자 입력으로 받음
-st.markdown("### Minimum Speed (km/h):")
-st.markdown("<style>div.stNumberInput>div>div>input{width: 80px;}</style>", unsafe_allow_html=True)  # 스타일 적용
+# Dashboard Layout
+col1, col2 = st.columns([1, 3])  # 첫 번째 칼럼을 좁게 설정
 
-min_speed = st.number_input("Minimum Speed (km/h):", min_value=0, max_value=100, value=50)
+with col1:
+    # 최소 속도 입력 필드
+    st.markdown("### Minimum Speed (km/h):")
+    min_speed = st.number_input("Minimum Speed (km/h):", min_value=0, max_value=100, value=50, key="speed_input", help="Set the minimum speed to filter data.")
 
-# 필터링된 데이터와 역 구간 데이터를 가져오기
-filtered_data = processor.get_filtered_data(min_speed)
-station_intervals_df = processor.get_station_intervals(filtered_data)
+with col2:
+    # 필터링된 데이터와 역 구간 데이터를 가져오기
+    filtered_data = processor.get_filtered_data(min_speed)
+    station_intervals_df = processor.get_station_intervals(filtered_data)
 
 # Dashboard Main Panel
 col = st.columns((2, 1), gap='medium')  # 순서를 바꿔서 1열이 막대그래프, 2열이 라인차트
