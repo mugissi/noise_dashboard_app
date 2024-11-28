@@ -151,30 +151,26 @@ with col[0]:
     )
     st.plotly_chart(fig, use_container_width=True)
 
-    # Line chart below the bar chart
+     # Line chart below the bar chart with Distance vs dB
     line_fig = go.Figure()
+
+    # 라인 차트 (distance vs dB)
     line_fig.add_trace(go.Scatter(
-        x=station_intervals_df['Station Pair'],
-        y=station_intervals_df['Average Noise (dBA)'],
+        x=filtered_df['distance'],  # 필터된 데이터에 맞춰 거리값 사용
+        y=filtered_df['dB'],  # 필터된 데이터에 맞춰 dB 값 사용
         mode='lines+markers',
-        name='Average Noise (dBA)',
+        name='Noise Level (dBA)',
         line=dict(color='blue'),
         marker=dict(color='blue')
     ))
-    line_fig.add_trace(go.Scatter(
-        x=station_intervals_df['Station Pair'],
-        y=station_intervals_df['Maximum Noise (dBA)'],
-        mode='lines+markers',
-        name='Maximum Noise (dBA)',
-        line=dict(color='red'),
-        marker=dict(color='red')
-    ))
+
     line_fig.update_layout(
-        title="Noise Level Trends (Average vs Maximum)",
-        xaxis_title="Station",
+        title="Noise Level vs Distance",
+        xaxis_title="Distance (m)",
         yaxis_title="Noise Level (dBA)",
         showlegend=True
     )
+    
     st.plotly_chart(line_fig, use_container_width=True)
 
 # About section
