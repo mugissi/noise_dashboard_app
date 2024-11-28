@@ -161,29 +161,7 @@ st.title("Noise Levels and Speed Dashboard")
 # Additional Insights
 st.markdown("### Insights:")
 st.write("Analyze the relationship between noise levels and speed across distances.")
- # 그래프 생성
-        fig = go.Figure()
-        fig.add_trace(go.Bar(
-            x=graph_data['Station Pair'],
-            y=graph_data['Maximum Noise (dBA)'],
-            name='Maximum Noise (dBA)',
-            marker_color='#808080'
-        ))
-        fig.add_trace(go.Bar(
-            x=graph_data['Station Pair'],
-            y=graph_data['Average Noise (dBA)'],
-            name='Average Noise (dBA)',
-            marker_color='#C0C0C0'
-        ))
-        fig.update_layout(
-            title=f"Average and Maximum Noise Levels at Speed Above {min_speed} km/h",
-            xaxis_title="Station",
-            yaxis_title="Noise Level (dBA)",
-            barmode='overlay'
-        )
 
-        # Streamlit에서 그래프 표시
-        st.plotly_chart(fig, use_container_width=True)
 
 # About section
 with col[1]:
