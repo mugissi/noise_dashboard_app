@@ -2,14 +2,21 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import streamlit as st
+import requests
+from io import StringIO
 
 # 데이터 준비 클래스 정의
 class StationDataProcessor:
-    def __init__(self, file_path):
+    def __init__(self, file_url):
         """
-        CSV 파일을 로드하고 역 코드 및 거리 데이터를 초기화합니다.
+        GitHub에서 CSV 파일을 다운로드하고 역 코드 및 거리 데이터를 초기화합니다.
         """
-        self.data_frame = pd.read_csv(file_path)
+        # GitHub에서 파일 다운로드
+        response = requests.get(file_url)
+        content = response.text  # CSV 파일의 텍스트 내용
+
+        # CSV 데이터 프레임으로 변환
+        self.data_frame = pd.read_csv(StringIO(content))
         self.codes = self.data_frame['code'].values
         self.station_distances = self.data_frame['station distance'].values
 
@@ -54,18 +61,21 @@ class StationDataProcessor:
 
 # Streamlit 애플리케이션
 st.title("Noise Monitoring Dashboard")
-file_path = st.text_input("Enter CSV File Path:", "/content/drive/MyDrive/mrt/data extraction/20_Northing_avg.csv")
 
-if file_path:
+# 사용자 입력으로 GitHub 파일 URL 받기
+file_url = st.text_input("Enter GitHub Raw CSV File URL:", "")
+
+if file_url:
     try:
         # 데이터 프로세싱
-        processor = StationDataProcessor(file_path)
+        processor = StationDataProcessor(file_url)
 
         # 역 쌍 생성
         station_pairs, station_btw_distance = processor.create_station_pairs()
 
         # 데이터 로드 (CSV 파일)
-        df = pd.read_csv(file_path)
+        response = requests.get(file_url)
+        df = pd.read_csv(StringIO(response.text))
 
         # 역쌍에 해당하는 거리, dB, speed 데이터를 가져옵니다.
         matched_distances = processor.get_matching_data(station_pairs, station_btw_distance, df)
@@ -107,4 +117,4 @@ if file_path:
     except Exception as e:
         st.error(f"Error: {e}")
 else:
-    st.info("Enter a valid CSV file path to start.")
+    st.info("Enter a valid GitHub Raw CSV file URL to start.")
