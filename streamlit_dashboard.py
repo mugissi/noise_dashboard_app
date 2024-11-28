@@ -129,40 +129,41 @@ class StationDataProcessor:
 col = st.columns((2, 1), gap='medium')  # 순서를 바꿔서 1열이 막대그래프, 2열이 라인차트
 
 with col[0]:
-    # 최소 속도를 사용자 입력으로 받음
-    min_speed = st.number_input("Minimum Speed (km/h):", min_value=0, max_value=300, value=70)
+    try:
+        # 최소 속도를 사용자 입력으로 받음
+        min_speed = st.number_input("Minimum Speed (km/h):", min_value=0, max_value=300, value=70)
 
-    # 필터링된 데이터와 역 구간 데이터를 가져오기
-    processor = StationDataProcessor(selected_csv_url)  # GitHub URL을 사용하여 데이터 로딩
-    filtered_data = processor.get_filtered_data(df, min_speed)
-    station_intervals_df = processor.get_station_intervals(filtered_data)
+        # 필터링된 데이터와 역 구간 데이터를 가져오기
+        processor = StationDataProcessor(selected_csv_url)  # GitHub URL을 사용하여 데이터 로딩
+        filtered_data = processor.get_filtered_data(df, min_speed)
+        station_intervals_df = processor.get_station_intervals(filtered_data)
 
-    # 그래프 생성
-    fig = go.Figure()
-    fig.add_trace(go.Bar(
-        x=station_intervals_df['Station Pair'],
-        y=station_intervals_df['Maximum Noise (dBA)'],
-        name='Maximum Noise (dBA)',
-        marker_color='#808080'
-    ))
-    fig.add_trace(go.Bar(
-        x=station_intervals_df['Station Pair'],
-        y=station_intervals_df['Average Noise (dBA)'],
-        name='Average Noise (dBA)',
-        marker_color='#C0C0C0'
-    ))
-    fig.update_layout(
-        title=f"Average and Maximum Noise Levels at Speed Above {min_speed} km/h",
-        xaxis_title="Station",
-        yaxis_title="Noise Level (dBA)",
-        barmode='overlay'
-    )
+        # 그래프 생성
+        fig = go.Figure()
+        fig.add_trace(go.Bar(
+            x=station_intervals_df['Station Pair'],
+            y=station_intervals_df['Maximum Noise (dBA)'],
+            name='Maximum Noise (dBA)',
+            marker_color='#808080'
+        ))
+        fig.add_trace(go.Bar(
+            x=station_intervals_df['Station Pair'],
+            y=station_intervals_df['Average Noise (dBA)'],
+            name='Average Noise (dBA)',
+            marker_color='#C0C0C0'
+        ))
+        fig.update_layout(
+            title=f"Average and Maximum Noise Levels at Speed Above {min_speed} km/h",
+            xaxis_title="Station",
+            yaxis_title="Noise Level (dBA)",
+            barmode='overlay'
+        )
 
-    # Streamlit에서 그래프 표시
-    st.plotly_chart(fig, use_container_width=True)
-
+        # Streamlit에서 그래프 표시
+        st.plotly_chart(fig, use_container_width=True)
     except Exception as e:
         st.error(f"Error: {e}")
+
 
 with col[1]:
     with st.expander('About', expanded=True):
