@@ -1,6 +1,3 @@
-##############두번째 완성본############### 드롭다운 바차트 사용자필터링 암호화##################
-
-
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
@@ -45,7 +42,7 @@ with st.sidebar:
     # 복호화된 CSV 파일 읽기
     df = pd.read_csv(decrypted_file)
 
-# Add a slider to filter distance range
+    # Add a slider to filter distance range
     min_distance, max_distance = st.slider(
         "Select Distance Range (m):",
         min_value=int(df['distance'].min()),
@@ -149,12 +146,16 @@ fig.update_layout(
     yaxis_title="Noise Level (dBA)",
     barmode='overlay'
 )
-st.title("Noise Levels and Speed Dashboard")
-        st.plotly_chart(fig, use_container_width=True)
-        st.markdown("### Insights:")
-        st.write("Analyze the relationship between noise levels and speed across distances.")
-    else:
-        st.info("No data available. Please select a CSV file.")
 
-# Streamlit에서 그래프 표시
+# Display the graph
 st.plotly_chart(fig, use_container_width=True)
+
+# Additional Insights
+st.markdown("### Insights:")
+st.write("Analyze the relationship between noise levels and speed across distances.")
+
+# About section
+with st.expander('About', expanded=True):
+    st.write("1. Use the sidebar to select a CSV file.")
+    st.write("2. Adjust filters to explore specific ranges of data.")
+    st.write("3. Analyze the graphs for insights on noise levels and speed.")
