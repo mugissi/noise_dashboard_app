@@ -126,36 +126,39 @@ min_speed = st.number_input("Minimum Speed (km/h):", min_value=0, max_value=300,
 filtered_data = processor.get_filtered_data(min_speed)
 station_intervals_df = processor.get_station_intervals(filtered_data)
 
-# 그래프 생성
-fig = go.Figure()
-fig.add_trace(go.Bar(
-    x=station_intervals_df['Station Pair'],
-    y=station_intervals_df['Maximum Noise (dBA)'],
-    name='Maximum Noise (dBA)',
-    marker_color='#808080'
-))
-fig.add_trace(go.Bar(
-    x=station_intervals_df['Station Pair'],
-    y=station_intervals_df['Average Noise (dBA)'],
-    name='Average Noise (dBA)',
-    marker_color='#C0C0C0'
-))
-fig.update_layout(
-    title=f"Average and Maximum Noise Levels at Speed Above {min_speed} km/h",
-    xaxis_title="Station",
-    yaxis_title="Noise Level (dBA)",
-    barmode='overlay'
-)
+# Dashboard Main Panel
+col = st.columns((2, 1), gap='medium')  # 순서를 바꿔서 1열이 막대그래프, 2열이 라인차트
 
-# Display the graph
-st.plotly_chart(fig, use_container_width=True)
+with col[0]:
+    # 그래프 생성
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        x=station_intervals_df['Station Pair'],
+        y=station_intervals_df['Maximum Noise (dBA)'],
+        name='Maximum Noise (dBA)',
+        marker_color='#808080'
+    ))
+    fig.add_trace(go.Bar(
+        x=station_intervals_df['Station Pair'],
+        y=station_intervals_df['Average Noise (dBA)'],
+        name='Average Noise (dBA)',
+        marker_color='#C0C0C0'
+    ))
+    fig.update_layout(
+        title=f"Average and Maximum Noise Levels at Speed Above {min_speed} km/h",
+        xaxis_title="Station",
+        yaxis_title="Noise Level (dBA)",
+        barmode='overlay'
+    )
 
-# Additional Insights
-st.markdown("### Insights:")
-st.write("Analyze the relationship between noise levels and speed across distances.")
+    st.plotly_chart(fig, use_container_width=True)
+
+    st.markdown("### Insights:")
+    st.write("Analyze the relationship between noise levels and speed across distances.")
 
 # About section
-with st.expander('About', expanded=True):
-    st.write("1. Use the sidebar to select a CSV file.")
-    st.write("2. Adjust filters to explore specific ranges of data.")
-    st.write("3. Analyze the graphs for insights on noise levels and speed.")
+with col[1]:
+    with st.expander('About', expanded=True):
+        st.write("1. Use the sidebar to select a CSV file.")
+        st.write("2. Adjust filters to explore specific ranges of data.")
+        st.write("3. Analyze the graphs for insights on noise levels and speed.")
