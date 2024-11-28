@@ -128,33 +128,62 @@ station_intervals_df = processor.get_station_intervals(filtered_data)
 
 # Dashboard Main Panel
 col = st.columns((2, 1), gap='medium')  # 순서를 바꿔서 1열이 막대그래프, 2열이 라인차트
+with col[0]
+# 그래프 생성
+fig = go.Figure()
+fig.add_trace(go.Bar(
+    x=station_intervals_df['Station Pair'],
+    y=station_intervals_df['Maximum Noise (dBA)'],
+    name='Maximum Noise (dBA)',
+    marker_color='#808080'
+))
+fig.add_trace(go.Bar(
+    x=station_intervals_df['Station Pair'],
+    y=station_intervals_df['Average Noise (dBA)'],
+    name='Average Noise (dBA)',
+    marker_color='#C0C0C0'
+))
+fig.update_layout(
+    title=f"Average and Maximum Noise Levels at Speed Above {min_speed} km/h",
+    xaxis_title="Station",
+    yaxis_title="Noise Level (dBA)",
+    barmode='overlay'
+)
 
-with col[0]:
-    # 그래프 생성
-    fig = go.Figure()
-    fig.add_trace(go.Bar(
-        x=station_intervals_df['Station Pair'],
-        y=station_intervals_df['Maximum Noise (dBA)'],
-        name='Maximum Noise (dBA)',
-        marker_color='#808080'
-    ))
-    fig.add_trace(go.Bar(
-        x=station_intervals_df['Station Pair'],
-        y=station_intervals_df['Average Noise (dBA)'],
-        name='Average Noise (dBA)',
-        marker_color='#C0C0C0'
-    ))
-    fig.update_layout(
-        title=f"Average and Maximum Noise Levels at Speed Above {min_speed} km/h",
-        xaxis_title="Station",
-        yaxis_title="Noise Level (dBA)",
-        barmode='overlay'
-    )
+st.title("Noise Levels and Speed Dashboard")
+        st.plotly_chart(fig, use_container_width=True)
+        st.markdown("### Insights:")
+        st.write("Analyze the relationship between noise levels and speed across distances.")
+    else:
+        st.info("No data available. Please select a CSV file.")
 
-    st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("### Insights:")
-    st.write("Analyze the relationship between noise levels and speed across distances.")
+# Additional Insights
+st.markdown("### Insights:")
+st.write("Analyze the relationship between noise levels and speed across distances.")
+ # 그래프 생성
+        fig = go.Figure()
+        fig.add_trace(go.Bar(
+            x=graph_data['Station Pair'],
+            y=graph_data['Maximum Noise (dBA)'],
+            name='Maximum Noise (dBA)',
+            marker_color='#808080'
+        ))
+        fig.add_trace(go.Bar(
+            x=graph_data['Station Pair'],
+            y=graph_data['Average Noise (dBA)'],
+            name='Average Noise (dBA)',
+            marker_color='#C0C0C0'
+        ))
+        fig.update_layout(
+            title=f"Average and Maximum Noise Levels at Speed Above {min_speed} km/h",
+            xaxis_title="Station",
+            yaxis_title="Noise Level (dBA)",
+            barmode='overlay'
+        )
+
+        # Streamlit에서 그래프 표시
+        st.plotly_chart(fig, use_container_width=True)
 
 # About section
 with col[1]:
