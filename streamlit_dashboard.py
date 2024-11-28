@@ -1,23 +1,54 @@
-############ avg,max bar chart in streamlit###########
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import streamlit as st
-import requests
-from io import StringIO
+import subprocess
+
+# Page configuration
+st.set_page_config(
+    page_title="Noise Monitoring Dashboard",
+    page_icon="🏂",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# GitHub에서 CSV 파일을 읽기 위한 URL 설정
+csv_file_paths = {
+    '19_M1_S25_9002.csv.gpg': 'https://github.com/mugissi/noise_dashboard_app/raw/noise.app/19_M1_S25_9002.csv.gpg',
+    '20_Northing_avg.csv.gpg': 'https://github.com/mugissi/noise_dashboard_app/raw/noise.app/20_Northing_avg.csv.gpg'
+}
+
+# Streamlit Secrets에서 비밀번호 가져오기
+gpg_password = st.secrets["general"]["GPG_PASSWORD"]
+
+# Sidebar
+with st.sidebar:
+    st.header("Noise Monitoring Dashboard")
+
+    # Use a selectbox to display the file options more clearly
+    selected_csv_name = st.sidebar.selectbox(
+        'Select an Encrypted CSV file:', ['19_M1_S25_9002.csv.gpg', '20_Northing_avg.csv.gpg']
+    )
+    selected_csv_url = csv_file_paths[selected_csv_name]  # Get the corresponding file URL
+
+    # 암호화된 파일을 다운로드 후 GPG 복호화 실행
+    encrypted_file = selected_csv_name
+    decrypted_file = f"decrypted_{selected_csv_name.replace('.gpg', '.csv')}"  # 복호화된 파일 이름 설정
+
+    # GPG 복호화 명령 실행
+    command = f"echo {gpg_password} | gpg --batch --yes --passphrase-fd 0 -o {decrypted_file} -d {encrypted_file}"
+    subprocess.run(command, shell=True, check=True)
+
+    # 복호화된 CSV 파일 읽기
+    df = pd.read_csv(decrypted_file)
 
 # 데이터 준비 클래스 정의
 class StationDataProcessor:
-    def __init__(self, file_url):
+    def __init__(self, df):
         """
-        GitHub에서 CSV 파일을 다운로드하고 역 코드 및 거리 데이터를 초기화합니다.
+        주어진 CSV 데이터프레임을 초기화합니다.
         """
-        # GitHub에서 파일 다운로드
-        response = requests.get(file_url)
-        content = response.text  # CSV 파일의 텍스트 내용
-
-        # CSV 데이터 프레임으로 변환
-        self.data_frame = pd.read_csv(StringIO(content))
+        self.data_frame = df
         self.codes = self.data_frame['code'].values
         self.stations = self.data_frame['station'].values
         self.station_distances = self.data_frame['station distance'].values
@@ -43,11 +74,11 @@ class StationDataProcessor:
             self.station_pairs.append(pair)
             self.station_btw_distance.append(distance_pair)
 
-    def get_filtered_data(self, df, min_speed):
+    def get_filtered_data(self, min_speed):
         """
         속도 기준으로 데이터를 필터링하는 메서드
         """
-        filtered_data = df[df['speed'] >= min_speed]
+        filtered_data = self.data_frame[self.data_frame['speed'] >= min_speed]
         return filtered_data
 
     def get_station_intervals(self, filtered_data):
@@ -74,50 +105,36 @@ class StationDataProcessor:
 # Streamlit 애플리케이션
 st.title("Noise Monitoring Dashboard")
 
-# 사용자 입력으로 GitHub 파일 URL 받기
-file_url = st.text_input("Enter GitHub Raw CSV File URL:", "")
+# 데이터 프로세싱
+processor = StationDataProcessor(df)
 
-if file_url:
-    try:
-        # 데이터 프로세싱
-        processor = StationDataProcessor(file_url)
+# 최소 속도를 사용자 입력으로 받음
+min_speed = st.number_input("Minimum Speed (km/h):", min_value=0, max_value=300, value=70)
 
-        # CSV 파일 로드 (GitHub에서)
-        response = requests.get(file_url)
-        df = pd.read_csv(StringIO(response.text))
+# 필터링된 데이터와 역 구간 데이터를 가져오기
+filtered_data = processor.get_filtered_data(min_speed)
+station_intervals_df = processor.get_station_intervals(filtered_data)
 
-        # 최소 속도를 사용자 입력으로 받음
-        min_speed = st.number_input("Minimum Speed (km/h):", min_value=0, max_value=300, value=70)
+# 그래프 생성
+fig = go.Figure()
+fig.add_trace(go.Bar(
+    x=station_intervals_df['Station Pair'],
+    y=station_intervals_df['Maximum Noise (dBA)'],
+    name='Maximum Noise (dBA)',
+    marker_color='#808080'
+))
+fig.add_trace(go.Bar(
+    x=station_intervals_df['Station Pair'],
+    y=station_intervals_df['Average Noise (dBA)'],
+    name='Average Noise (dBA)',
+    marker_color='#C0C0C0'
+))
+fig.update_layout(
+    title=f"Average and Maximum Noise Levels at Speed Above {min_speed} km/h",
+    xaxis_title="Station",
+    yaxis_title="Noise Level (dBA)",
+    barmode='overlay'
+)
 
-        # 필터링된 데이터와 역 구간 데이터를 가져오기
-        filtered_data = processor.get_filtered_data(df, min_speed)
-        station_intervals_df = processor.get_station_intervals(filtered_data)
-
-        # 그래프 생성
-        fig = go.Figure()
-        fig.add_trace(go.Bar(
-            x=station_intervals_df['Station Pair'],
-            y=station_intervals_df['Maximum Noise (dBA)'],
-            name='Maximum Noise (dBA)',
-            marker_color='#808080'
-        ))
-        fig.add_trace(go.Bar(
-            x=station_intervals_df['Station Pair'],
-            y=station_intervals_df['Average Noise (dBA)'],
-            name='Average Noise (dBA)',
-            marker_color='#C0C0C0'
-        ))
-        fig.update_layout(
-            title=f"Average and Maximum Noise Levels at Speed Above {min_speed} km/h",
-            xaxis_title="Station",
-            yaxis_title="Noise Level (dBA)",
-            barmode='overlay'
-        )
-
-        # Streamlit에서 그래프 표시
-        st.plotly_chart(fig, use_container_width=True)
-
-    except Exception as e:
-        st.error(f"Error: {e}")
-else:
-    st.info("Enter a valid GitHub Raw CSV file URL to start.")
+# Streamlit에서 그래프 표시
+st.plotly_chart(fig, use_container_width=True)
