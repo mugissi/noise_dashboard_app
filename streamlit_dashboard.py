@@ -120,6 +120,37 @@ with col[0]:
     )
 
     st.plotly_chart(fig, use_container_width=True)
+ # 라인 차트 생성
+    line_fig = go.Figure()
+
+    # Plot Noise Level (dB)
+    line_fig.add_trace(go.Scatter(
+        x=df['distance'],
+        y=df['dB'],
+        mode='lines',
+        name='Noise Level (dB)',
+        yaxis="y1"
+    ))
+
+    # Plot Speed (km/h)
+    line_fig.add_trace(go.Scatter(
+        x=df['distance'],
+        y=df['speed'],
+        mode='lines',
+        name='Speed (km/h)',
+        yaxis="y2"
+    ))
+
+    # Update layout with dual y-axes
+    line_fig.update_layout(
+        title="Noise Levels and Speed Over Distance",
+        xaxis=dict(title="Distance (m)"),
+        yaxis=dict(title="Noise Level (dB)", side="left"),
+        yaxis2=dict(title="Speed (km/h)", overlaying="y", side="right"),
+        height=600
+    )
+
+    st.plotly_chart(line_fig, use_container_width=True)
 
 # About section
 with col[1]:
