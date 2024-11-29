@@ -42,17 +42,6 @@ with st.sidebar:
     # 복호화된 CSV 파일 읽기
     df = pd.read_csv(decrypted_file)
 
-    # Add a slider to filter distance range
-    min_distance, max_distance = st.slider(
-        "Select Distance Range (m):",
-        min_value=int(df['distance'].min()),
-        max_value=int(df['distance'].max()),
-        value=(int(df['distance'].min()), int(df['distance'].max()))
-    )
-
-# Filter the dataframe based on the selected distance range
-filtered_df = df[(df['distance'] >= min_distance) & (df['distance'] <= max_distance)]
-
 # 데이터 준비 클래스 정의
 class StationDataProcessor:
     def __init__(self, df):
@@ -163,8 +152,8 @@ with col[0]:
 
     # Plot Noise Level (dB)
     line_fig.add_trace(go.Scatter(
-        x=filtered_df['distance'],
-        y=filtered_df['dB'],
+        x=filtered_data['distance'],
+        y=filtered_data['dB'],
         mode='lines',
         name='Noise Level (dB)',
         yaxis="y1"
@@ -172,8 +161,8 @@ with col[0]:
 
     # Plot Speed (km/h)
     line_fig.add_trace(go.Scatter(
-        x=filtered_df['distance'],
-        y=filtered_df['speed'],
+        x=filtered_data['distance'],
+        y=filtered_data['speed'],
         mode='lines',
         name='Speed (km/h)',
         yaxis="y2"
