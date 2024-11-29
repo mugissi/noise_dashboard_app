@@ -12,7 +12,7 @@ from pyproj import Proj
 csv_file_paths = {
     '19_M1_S25_9002.csv.gpg': 'https://github.com/mugissi/noise_dashboard_app/raw/noise.app/19_M1_S25_9002.csv.gpg',
     '20_Northing_avg.csv.gpg': 'https://github.com/mugissi/noise_dashboard_app/raw/noise.app/20_Northing_avg.csv.gpg',
-    'ip_coordinate.csv.gpg': 'https://github.com/mugissi/noise_dashboard_app/raw/main/ip%2Ccoordinate.csv.gpg'
+    'ip_coordinate.csv': 'https://github.com/mugissi/noise_dashboard_app/raw/main/ip%2Ccoordinate.csv'  # GPG 복호화 없이 .csv 파일을 읽음
 }
 
 # Streamlit Secrets에서 비밀번호 가져오기
@@ -28,16 +28,20 @@ with st.sidebar:
     )
     selected_csv_url = csv_file_paths[selected_csv_name]  # Get the corresponding file URL
 
-    # 암호화된 파일을 다운로드 후 GPG 복호화 실행
-    encrypted_file = selected_csv_name
-    decrypted_file = f"/tmp/decrypted_{selected_csv_name.replace('.gpg', '.csv')}"  # 복호화된 파일 이름 설정
+    # CSV 파일을 직접 다운로드하여 읽기 (coordinate.csv만 복호화 없이 읽기)
+    if selected_csv_name == 'ip_coordinate.csv':  # coordinate.csv는 복호화 없이 읽기
+        df = pd.read_csv(selected_csv_url)
+    else:
+        # 암호화된 파일을 다운로드 후 GPG 복호화 실행
+        encrypted_file = selected_csv_name
+        decrypted_file = f"/tmp/decrypted_{selected_csv_name.replace('.gpg', '.csv')}"  # 복호화된 파일 이름 설정
 
-    # GPG 복호화 명령 실행
-    command = f"echo {gpg_password} | gpg --batch --yes --passphrase-fd 0 -o {decrypted_file} -d {encrypted_file}"
-    subprocess.run(command, shell=True, check=True)
+        # GPG 복호화 명령 실행
+        command = f"echo {gpg_password} | gpg --batch --yes --passphrase-fd 0 -o {decrypted_file} -d {encrypted_file}"
+        subprocess.run(command, shell=True, check=True)
 
-    # 복호화된 CSV 파일 읽기
-    df = pd.read_csv(decrypted_file)
+        # 복호화된 CSV 파일 읽기
+        df = pd.read_csv(decrypted_file)
 
 # MRTMap 클래스
 class MRTMap:
