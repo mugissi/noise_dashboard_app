@@ -117,7 +117,6 @@ col1, col2 = st.columns([1, 3])  # 첫 번째 칼럼을 좁게 설정
 
 with col1:
     # 최소 속도 입력 필드
-    st.markdown("### Minimum Speed (km/h):")
     min_speed = st.number_input("Minimum Speed (km/h):", min_value=0, max_value=100, value=50, key="speed_input", help="Set the minimum speed to filter data.")
 
 with col2:
