@@ -12,7 +12,7 @@ from pyproj import Proj
 csv_file_paths = {
     '19_M1_S25_9002.csv.gpg': 'https://github.com/mugissi/noise_dashboard_app/raw/noise.app/19_M1_S25_9002.csv.gpg',
     '20_Northing_avg.csv.gpg': 'https://github.com/mugissi/noise_dashboard_app/raw/noise.app/20_Northing_avg.csv.gpg',
-    'ip_coordinate.csv.gpg': 'https://github.com/mugissi/noise_dashboard_app/blob/main/ip%2Ccoordinate.csv.gpg'
+    'ip_coordinate.csv.gpg': 'https://github.com/mugissi/noise_dashboard_app/raw/main/ip%2Ccoordinate.csv.gpg'
 }
 
 # Streamlit Secrets에서 비밀번호 가져오기
