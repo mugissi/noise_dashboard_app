@@ -1,9 +1,32 @@
+
+#################네번째 완성본/ 슬라이더 삭제######################
+
+
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
-import plotly.express as px
 import streamlit as st
 import subprocess
+
+
+
+stationdata = {
+    "station": [
+        "Depo", "Lebakbulus", "Fatmawati", "Cipeteraya", "Haji Nawi", "Blok A",
+        "Blok M", "ASEAN", "Senayan", "Istora", "Bendunganhilir",
+        "Setiabudi", "Dukuh Atas", "Bundaran HI"
+    ],
+    "code": [
+        "DPO", "LBB", "FTW", "CPR", "HJN", "BLA", "BLM", "ASN", "SNY", "IST",
+        "BNH", "SET", "DKA", "BHI"
+    ],
+    "station distance": [
+        0, 329, 2347, 4158, 5456, 6672, 7843, 8570, 10089, 10903,
+        12218, 13001, 13917, 14983
+    ]
+}
+
+station_df = pd.DataFrame(stationdata)
 
 # Page configuration
 st.set_page_config(
@@ -18,35 +41,6 @@ csv_file_paths = {
     '19_M1_S25_9002.csv.gpg': 'https://github.com/mugissi/noise_dashboard_app/raw/noise.app/19_M1_S25_9002.csv.gpg',
     '20_Northing_avg.csv.gpg': 'https://github.com/mugissi/noise_dashboard_app/raw/noise.app/20_Northing_avg.csv.gpg'
 }
-
-# 데이터 준비
-mapdata = {
-    "Easting": [
-        696048.2929, 696482.7628, 696698.3158, 696944.4622, 697156.8744,
-        697386.7467, 697587.3221, 698016.9582, 698156.6926, 698581.4759,
-        698617.5587, 698612.9601, 698667.4489, 698695.8408, 698738.792,
-        698801.7721, 698881.3909, 698874.6548, 698832.7799, 698846.7733,
-        698842.4395, 698755.8979, 698806.1815, 698842.8768, 698867.3909,
-        698910.8486, 698926.6735, 698927.6456, 698971.9333, 698974.9174,
-        699105.3438, 699641.3044, 699828.3563, 699948.4089, 700127.6216,
-        700303.9005, 701287.4479, 701578.9169, 701627.5808, 701686.7889,
-        701716.3245, 701697.3665
-    ],
-    "Northing": [
-        9304493.769, 9304482.197, 9304514.969, 9304337.589, 9304267.315,
-        9304201.975, 9304135.206, 9304127.504, 9304129.801, 9304122.465,
-        9304478.689, 9304622.126, 9304865.732, 9305274.7, 9305430.142,
-        9305562.786, 9305849.264, 9306271.464, 9306831.722, 9307071.274,
-        9307322.969, 9307504.59, 9308020.592, 9308376.783, 9308871.568,
-        9309164.034, 9309329.551, 9309577.407, 9309697.438, 9310904.932,
-        9311159.405, 9311563.151, 9311704.223, 9311778.24, 9311887.843,
-        9312031.446, 9312803.768, 9313381.059, 9313978.021, 9314326.82,
-        9314475.36, 9315383.488
-    ],
-}
-
-# DataFrame 생성
-map_df = pd.DataFrame(mapdata)
 
 # Streamlit Secrets에서 비밀번호 가져오기
 gpg_password = st.secrets["general"]["GPG_PASSWORD"]
@@ -75,17 +69,15 @@ with st.sidebar:
 
 # 데이터 준비 클래스 정의
 class StationDataProcessor:
-    def __init__(self, df):
+    def __init__(self, data):
         """
-        주어진 CSV 데이터프레임을 초기화합니다.
+        주어진 데이터로 초기화합니다.
         """
-        self.data_frame = df
+        # 데이터 프레임 생성
+        self.data_frame = pd.DataFrame(data)
         self.codes = self.data_frame['code'].values
         self.stations = self.data_frame['station'].values
         self.station_distances = self.data_frame['station distance'].values
-        self.distances = self.data_frame['distance'].values
-        self.dBs = self.data_frame['dB'].values
-        self.speeds = self.data_frame['speed'].values
 
         # 역 쌍 생성
         self.station_pairs = []  # 역 쌍 리스트
@@ -152,24 +144,65 @@ with col2:
     station_intervals_df = processor.get_station_intervals(filtered_data)
 
 # Dashboard Main Panel
-col = st.columns([1, 1, 3])
-
-with col[2]:
-    # Bubble Map을 위한 지도 그리기
-    map_fig = go.Figure(go.Scattermapbox(
-        mode='markers',
-        lat=map_df['Northing'],
-        lon=map_df['Easting'],
-        marker=dict(size=10, color='blue', opacity=0.7),
-        text=map_df.index
+col = st.columns((2, 1), gap='medium')  # 순서를 바꿔서 1열이 막대그래프, 2열이 라인차트
+with col[0]:
+    # 그래프 생성
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        x=station_intervals_df['Station Pair'],
+        y=station_intervals_df['Maximum Noise (dBA)'],
+        name='Maximum Noise (dBA)',
+        marker_color='#808080'
     ))
-
-    map_fig.update_layout(
-        mapbox_style="carto-positron",
-        mapbox_zoom=12,
-        mapbox_center={"lat": map_df['Northing'].mean(), "lon": map_df['Easting'].mean()},
-        title="Noise Source Bubble Map",
+    fig.add_trace(go.Bar(
+        x=station_intervals_df['Station Pair'],
+        y=station_intervals_df['Average Noise (dBA)'],
+        name='Average Noise (dBA)',
+        marker_color='#C0C0C0'
+    ))
+    fig.update_layout(
+        title=f"Average and Maximum Noise Levels at Speed Above {min_speed} km/h",
+        xaxis_title="Station",
+        yaxis_title="Noise Level (dBA)",
+        barmode='overlay'
     )
 
-    # 지도 출력
-    st.plotly_chart(map_fig)
+    st.plotly_chart(fig, use_container_width=True)
+
+       # 라인 차트 생성
+    line_fig = go.Figure()
+
+    # Plot Noise Level (dB)
+    line_fig.add_trace(go.Scatter(
+        x=df['distance'],
+        y=df['dB'],
+        mode='lines',
+        name='Noise Level (dB)',
+        yaxis="y1"
+    ))
+
+    # Plot Speed (km/h)
+    line_fig.add_trace(go.Scatter(
+        x=df['distance'],
+        y=df['speed'],
+        mode='lines',
+        name='Speed (km/h)',
+        yaxis="y2"
+    ))
+
+    # Update layout with dual y-axes
+    line_fig.update_layout(
+        title="Noise Levels and Speed Over Distance",
+        xaxis=dict(title="Distance (m)"),
+        yaxis=dict(title="Noise Level (dB)", side="left"),
+        yaxis2=dict(title="Speed (km/h)", overlaying="y", side="right"),
+        height=600
+    )
+
+    st.plotly_chart(line_fig, use_container_width=True)
+
+# About section
+with col[1]:
+    with st.expander('About', expanded=True):
+        st.write("1. Use the sidebar to select a CSV file.")
+        st.write("2. Analyze the graphs for insights on noise levels and station intervals.")
