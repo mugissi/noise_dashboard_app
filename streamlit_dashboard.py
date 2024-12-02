@@ -129,7 +129,7 @@ class StationDataProcessor:
 st.title("Noise Monitoring Dashboard")
 
 # 데이터 프로세싱
-processor = StationDataProcessor(df)
+processor = StationDataProcessor(station_df)
 
 # Dashboard Layout
 col1, col2 = st.columns([1, 3])  # 첫 번째 칼럼을 좁게 설정
