@@ -71,65 +71,73 @@ with st.sidebar:
 class StationDataProcessor:
     def __init__(self, data):
         """
-        주어진 데이터로 초기화합니다.
+        역 데이터를 처리하는 클래스입니다.
         """
-        # 데이터 프레임 생성
         self.data_frame = pd.DataFrame(data)
         self.codes = self.data_frame['code'].values
         self.stations = self.data_frame['station'].values
         self.station_distances = self.data_frame['station distance'].values
 
-        # 역 쌍 생성
         self.station_pairs = []  # 역 쌍 리스트
         self.station_btw_distance = []  # 역 거리 리스트
         self.create_station_pairs()
 
     def create_station_pairs(self):
         """
-        역 쌍을 생성하는 메서드입니다.
-        NaN 값을 건너뛰고, 역 쌍 및 거리 값을 저장합니다.
+        역 쌍을 생성합니다.
         """
         for i in range(len(self.codes) - 1):
             if pd.isna(self.codes[i]) or pd.isna(self.codes[i + 1]) or pd.isna(self.station_distances[i]) or pd.isna(self.station_distances[i + 1]):
                 continue
-            pair = f"{self.codes[i]} - {self.codes[i + 1]}"  # 역 코드로 쌍 만들기
-            distance_pair = (self.station_distances[i], self.station_distances[i + 1])  # 해당 역쌍의 거리 값
+            pair = f"{self.codes[i]} - {self.codes[i + 1]}"
+            distance_pair = (self.station_distances[i], self.station_distances[i + 1])
             self.station_pairs.append(pair)
             self.station_btw_distance.append(distance_pair)
 
+
+class NoiseDataProcessor:
+    def __init__(self, data, station_processor):
+        """
+        소음 데이터를 처리하는 클래스입니다.
+        """
+        self.data_frame = data  # CSV에서 읽은 데이터 프레임
+        self.station_processor = station_processor  # StationDataProcessor 인스턴스
+        self.station_pairs = station_processor.station_pairs
+        self.station_btw_distance = station_processor.station_btw_distance
+
     def get_filtered_data(self, min_speed):
         """
-        속도 기준으로 데이터를 필터링하는 메서드
+        속도 기준으로 데이터를 필터링합니다.
         """
         filtered_data = self.data_frame[self.data_frame['speed'] >= min_speed]
         return filtered_data
 
     def get_station_intervals(self, filtered_data):
         """
-        역쌍에 대해 평균 소음과 최대 소음을 계산하는 메서드
+        역 구간별 평균 소음과 최대 소음을 계산합니다.
         """
-        station_intervals = []  # 역 구간 정보를 저장할 리스트 초기화
+        station_intervals = []
         for pair, (start_distance, end_distance) in zip(self.station_pairs, self.station_btw_distance):
-            # 역 쌍에 맞는 데이터 필터링
             main_line_between = filtered_data[(filtered_data['distance'] >= start_distance) & (filtered_data['distance'] <= end_distance)]
-            if not main_line_between.empty:  # 필터링된 데이터가 비어 있지 않으면
-                average_noise = main_line_between['dB'].mean()  # 평균 소음 계산
-                maximum_noise = main_line_between['dB'].max()  # 최대 소음 계산
-            else:  # 데이터가 비어 있으면
-                average_noise = 0  # 평균 소음 0으로 설정
-                maximum_noise = 0  # 최대 소음 0으로 설정
-            station_intervals.append({  # 역 구간 정보를 리스트에 추가
-                'Station Pair': pair,  # 역 쌍
-                'Average Noise (dBA)': average_noise,  # 평균 소음
-                'Maximum Noise (dBA)': maximum_noise  # 최대 소음
+            if not main_line_between.empty:
+                average_noise = main_line_between['dB'].mean()
+                maximum_noise = main_line_between['dB'].max()
+            else:
+                average_noise = 0
+                maximum_noise = 0
+            station_intervals.append({
+                'Station Pair': pair,
+                'Average Noise (dBA)': average_noise,
+                'Maximum Noise (dBA)': maximum_noise
             })
         return pd.DataFrame(station_intervals)
 
 # Streamlit 애플리케이션
 st.title("Noise Monitoring Dashboard")
 
-# 데이터 프로세싱
-processor = StationDataProcessor(station_df)
+# 데이터 프로세싱: 역 데이터와 CSV 데이터를 각각 처리
+station_processor = StationDataProcessor(stationdata)  # 역 정보 처리
+noise_processor = NoiseDataProcessor(df, station_processor)  # 소음 데이터 처리
 
 # Dashboard Layout
 col1, col2 = st.columns([1, 3])  # 첫 번째 칼럼을 좁게 설정
@@ -139,9 +147,10 @@ with col1:
     min_speed = st.number_input("Minimum Speed (km/h):", min_value=0, max_value=100, value=50, key="speed_input", help="Set the minimum speed to filter data.")
 
 with col2:
-    # 필터링된 데이터와 역 구간 데이터를 가져오기
-    filtered_data = processor.get_filtered_data(min_speed)
-    station_intervals_df = processor.get_station_intervals(filtered_data)
+
+    # 소음 데이터 필터링 및 구간별 소음 분석
+    filtered_data = noise_processor.get_filtered_data(min_speed)
+    station_intervals_df = noise_processor.get_station_intervals(filtered_data)
 
 # Dashboard Main Panel
 col = st.columns((2, 1), gap='medium')  # 순서를 바꿔서 1열이 막대그래프, 2열이 라인차트
