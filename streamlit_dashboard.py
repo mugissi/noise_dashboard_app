@@ -11,16 +11,16 @@ import subprocess
 
 stationdata = {
     "station": [
-        "Depo", "Lebakbulus", "Fatmawati", "Cipeteraya", "Haji Nawi", "Blok A",
+        "Lebakbulus", "Fatmawati", "Cipeteraya", "Haji Nawi", "Blok A",
         "Blok M", "ASEAN", "Senayan", "Istora", "Bendunganhilir",
         "Setiabudi", "Dukuh Atas", "Bundaran HI"
     ],
     "code": [
-        "DPO", "LBB", "FTW", "CPR", "HJN", "BLA", "BLM", "ASN", "SNY", "IST",
+        "LBB", "FTW", "CPR", "HJN", "BLA", "BLM", "ASN", "SNY", "IST",
         "BNH", "SET", "DKA", "BHI"
     ],
     "station distance": [
-        0, 329, 2347, 4158, 5456, 6672, 7843, 8570, 10089, 10903,
+        329, 2347, 4158, 5456, 6672, 7843, 8570, 10089, 10903,
         12218, 13001, 13917, 14983
     ]
 }
