@@ -53,7 +53,7 @@ with st.sidebar:
 
     # Use a selectbox to display the file options more clearly
     selected_csv_name = st.sidebar.selectbox(
-        'Select an Encrypted CSV file:', ['18_M1_S25_9002.csv', '19_M1_S25_9002.csv', '20_Northing.1.csv']
+        'Select an Encrypted CSV file:', ['18_M1_S25_9002.csv.gpg', '19_M1_S25_9002.csv.gpg', '20_Northing.1.csv.gpg']
     )
     selected_csv_url = csv_file_paths[selected_csv_name]  # Get the corresponding file URL
 
