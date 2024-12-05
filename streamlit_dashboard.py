@@ -216,8 +216,4 @@ with col[1]:
     with st.expander('About', expanded=True):
         st.write("1. Use the sidebar to select a CSV file.")
         st.write("2. Analyze the graphs for insights on noise levels and station intervals.")
-# About section
-with col[1]:
-    with st.expander('About', expanded=True):
-        st.write("1. Use the sidebar to select a CSV file.")
-        st.write("2. Analyze the graphs for insights on noise levels and station intervals.")
+
