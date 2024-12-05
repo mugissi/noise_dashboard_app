@@ -1,7 +1,4 @@
-
-#################다섯번째 완성본/ 역데이터 코드로 이동######################
-
-
+###########최종완성본###########
 
 import pandas as pd
 import numpy as np
@@ -13,16 +10,16 @@ import subprocess
 
 stationdata = {
     "station": [
-        "Depo", "Lebakbulus", "Fatmawati", "Cipeteraya", "Haji Nawi", "Blok A",
+        "Lebakbulus", "Fatmawati", "Cipeteraya", "Haji Nawi", "Blok A",
         "Blok M", "ASEAN", "Senayan", "Istora", "Bendunganhilir",
         "Setiabudi", "Dukuh Atas", "Bundaran HI"
     ],
     "code": [
-        "DPO", "LBB", "FTW", "CPR", "HJN", "BLA", "BLM", "ASN", "SNY", "IST",
+        "LBB", "FTW", "CPR", "HJN", "BLA", "BLM", "ASN", "SNY", "IST",
         "BNH", "SET", "DKA", "BHI"
     ],
     "station distance": [
-        0, 329, 2347, 4158, 5456, 6672, 7843, 8570, 10089, 10903,
+        329, 2347, 4158, 5456, 6672, 7843, 8570, 10089, 10903,
         12218, 13001, 13917, 14983
     ]
 }
@@ -39,8 +36,10 @@ st.set_page_config(
 
 # GitHub에서 CSV 파일을 읽기 위한 URL 설정
 csv_file_paths = {
-    '19_M1_S25_9002.csv.gpg': 'https://github.com/mugissi/noise_dashboard_app/raw/noise.app/19_M1_S25_9002.csv.gpg',
-    '20_Northing.1.csv.gpg': 'https://github.com/mugissi/noise_dashboard_app/raw/noise.app/20_Northing.1.csv.gpg'
+
+    '18_M1_S25_9002.csv.gpg': 'https://github.com/mugissi/noise_dashboard_app/raw/main/18.M1_S25_9002.csv.gpg',
+    '19_M1_S25_9002.csv.gpg': 'https://github.com/mugissi/noise_dashboard_app/raw/main/19_M1_S25_9002.csv.gpg',
+    '20_Northing.1.csv.gpg': 'https://github.com/mugissi/noise_dashboard_app/raw/main/20_Northing.1.csv.gpg'
 }
 
 # Streamlit Secrets에서 비밀번호 가져오기
@@ -52,7 +51,7 @@ with st.sidebar:
 
     # Use a selectbox to display the file options more clearly
     selected_csv_name = st.sidebar.selectbox(
-        'Select an Encrypted CSV file:', ['19_M1_S25_9002.csv.gpg', '20_Northing.1.csv.gpg']
+        'Select an Encrypted CSV file:', ['18_M1_S25_9002.csv.gpg', '19_M1_S25_9002.csv.gpg', '20_Northing.1.csv.gpg']
     )
     selected_csv_url = csv_file_paths[selected_csv_name]  # Get the corresponding file URL
 
@@ -216,4 +215,3 @@ with col[1]:
     with st.expander('About', expanded=True):
         st.write("1. Use the sidebar to select a CSV file.")
         st.write("2. Analyze the graphs for insights on noise levels and station intervals.")
-
