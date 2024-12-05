@@ -36,7 +36,7 @@ st.set_page_config(
 # GitHub에서 CSV 파일을 읽기 위한 URL 설정
 csv_file_paths = {
 
-    '18_M1_S25_9002.csv.gpg': 'https://github.com/mugissi/noise_dashboard_app/raw/main/18.M1_S25_9002.csv.gpg',
+    '18_M1_S25_9002.csv': 'https://github.com/mugissi/noise_dashboard_app/raw/main/18.M1_S25_9002.csv.gpg',
     '19_M1_S25_9002.csv.gpg': 'https://github.com/mugissi/noise_dashboard_app/raw/main/19_M1_S25_9002.csv.gpg',
     '20_Northing.1.csv.gpg': 'https://github.com/mugissi/noise_dashboard_app/raw/main/20_Northing.1.csv.gpg'
 }
@@ -50,7 +50,7 @@ with st.sidebar:
 
     # Use a selectbox to display the file options more clearly
     selected_csv_name = st.sidebar.selectbox(
-        'Select an Encrypted CSV file:', ['18_M1_S25_9002.csv.gpg', '19_M1_S25_9002.csv.gpg', '20_Northing.1.csv.gpg']
+        'Select CSV file:', ['18_M1_S25_9002.csv', '19_M1_S25_9002.csv.gpg', '20_Northing.1.csv.gpg']
     )
     selected_csv_url = csv_file_paths[selected_csv_name]  # Get the corresponding file URL
 
