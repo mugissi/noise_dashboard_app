@@ -1,5 +1,4 @@
 ###########최종완성본###########
-
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
@@ -29,7 +28,7 @@ station_df = pd.DataFrame(stationdata)
 # Page configuration
 st.set_page_config(
     page_title="Noise Monitoring Dashboard",
-    page_icon="🏂",
+    page_icon="📈",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -213,5 +212,35 @@ with col[0]:
 # About section
 with col[1]:
     with st.expander('About', expanded=True):
-        st.write("1. Use the sidebar to select a CSV file.")
-        st.write("2. Analyze the graphs for insights on noise levels and station intervals.")
+        st.markdown("""
+        <style>
+        .st-expanderHeader {
+            background-color: #000000;
+            color: #ffffff;
+        }
+        .st-expanderContent {
+            background-color: #333333;
+            color: #ffffff;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        
+        st.write("""
+        ## Noise Monitoring Dashboard
+
+        This dashboard allows users to analyze noise levels along different stations of the Jakarta MRT system. Key features include:
+
+        1. **CSV File Selection**: Select a CSV file from the sidebar. The files contain raw data about noise levels and speeds at various stations along the MRT.
+        2. **Data Decryption**: The selected CSV files are encrypted and must be decrypted using a password before analysis.
+        3. **Noise Level Analysis**: The application processes the data to provide insights into noise levels along the stations. Noise levels are categorized into **average noise** and **maximum noise** for each segment between two stations.
+        4. **Visualization**: The results are displayed as two types of charts:
+            - **Bar Chart**: Shows the average and maximum noise levels for each station pair.
+            - **Line Chart**: Displays the noise levels and speeds over distance to visualize how these values change across the route.
+        5. **Filtering by Speed**: Users can filter data by a minimum speed threshold, allowing them to focus on the data relevant to specific speed ranges.
+
+        ## Instructions:
+        1. **Select a CSV File**: Choose one of the available files from the sidebar.
+        2. **Set Minimum Speed**: Adjust the speed threshold to filter the data. Only data with speeds above the threshold will be analyzed.
+        3. **View Analysis**: The dashboard will display two charts to help analyze the noise levels and how they correlate with speed and station distance.
+        4. **Interpret Results**: Use the bar chart to compare noise levels between stations, and the line chart to understand how noise and speed change over the route.
+        """)
