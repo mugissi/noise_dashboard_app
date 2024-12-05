@@ -160,13 +160,13 @@ with col[0]:
         x=station_intervals_df['Station Pair'],
         y=station_intervals_df['Maximum Noise (dBA)'],
         name='Maximum Noise (dBA)',
-        marker_color='#28a745'
+        marker_color='#006400'
     ))
     fig.add_trace(go.Bar(
         x=station_intervals_df['Station Pair'],
         y=station_intervals_df['Average Noise (dBA)'],
         name='Average Noise (dBA)',
-        marker_color='#006400'
+        marker_color='#28a745'
     ))
     fig.update_layout(
         title=f"Average and Maximum Noise Levels at Speed Above {min_speed} km/h",
