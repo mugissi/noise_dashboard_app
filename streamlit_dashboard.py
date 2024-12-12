@@ -209,7 +209,6 @@ with col[0]:
 
     st.plotly_chart(line_fig, use_container_width=True)
 
-import streamlit as st
 
 # CSS 스타일 추가
 st.markdown("""
