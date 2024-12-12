@@ -142,7 +142,7 @@ noise_processor = NoiseDataProcessor(df, station_processor)  # 소음 데이터 
 col1, col2 = st.columns([1, 3])  # 첫 번째 칼럼을 좁게 설정
 
 with col1:
-    # 최소 속도 입력 필드
+    # Minimum speed input field
     min_speed = st.number_input("Minimum Speed (km/h):", min_value=0, max_value=100, value=50, key="speed_input", help="Set the minimum speed to filter data.")
 
 with col2:
@@ -152,7 +152,7 @@ with col2:
     station_intervals_df = noise_processor.get_station_intervals(filtered_data)
 
 # Dashboard Main Panel
-col = st.columns((3, 1), gap='medium')  # 순서를 바꿔서 1열이 막대그래프, 2열이 라인차트
+col = st.columns((2, 1), gap='medium')  # 순서를 바꿔서 1열이 막대그래프, 2열이 라인차트
 with col[0]:
     # 그래프 생성
     fig = go.Figure()
@@ -209,54 +209,62 @@ with col[0]:
 
     st.plotly_chart(line_fig, use_container_width=True)
 
-
-with col1:
+# About section
+with col[1]:
     with st.expander('About', expanded=True):
         st.markdown("""
-            <style>
-                .big-title {
-                    font-size: 24px;
-                    font-weight: bold;
-                }
-                .section-title {
-                    font-size: 20px;
-                    font-weight: bold;
-                }
-                .content {
-                    font-size: 16px;
-                }
-            </style>
+        <style>
+        .st-expanderHeader {
+            background-color: #444444;
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .st-expanderContent {
+            background-color: #555555;
+            color: #ffffff;
+        }
+        .st-expanderContent h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .st-expanderContent h2 {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .st-expanderContent p {
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+        </style>
         """, unsafe_allow_html=True)
 
-        # 대시보드 사용법
-        with st.expander('How to Use the Dashboard for Decision-Making', expanded=True):
-            st.markdown("""
-            <div class="big-title">How to Use the Dashboard for Decision-Making</div>
+        st.write("""
+        <h1>How to Use the Dashboard for Decision-Making</h1>
         
-            <div class="section-title">1. Sidebar</div>
-            <div class="content">You can select a saved CSV file to visualize and check noise data for a specific year. Currently, the noise data for MRTJ from 2018, 2019, and 2020 are available.</div>
+        <h2>Sidebar:</h2>
+        <p>You can select a saved CSV file to visualize and check noise data for a specific year. Currently, the noise data for MRTJ from 2018, 2019, and 2020 are available.</p>
         
-            <div class="section-title">2. Bar Chart</div>
-            <div class="content">View the average and maximum noise levels for station pairs. You can also use the minimum speed label to filter and check noise data above a specific speed.</div>
+        <h2>Bar Chart:</h2>
+        <p>View the average and maximum noise levels for station pairs. You can also use the minimum speed label to filter and check noise data above a specific speed.</p>
         
-            <div class="section-title">3. Line Chart</div>
-            <div class="content">Observe the noise and speed data as line charts based on distance. This allows you to easily identify the correlation between the two indicators.</div>
-            """, unsafe_allow_html=True)
-
-        # 각 기능의 이점 및 의사결정 연결점
-        with st.expander('Benefits of Each Feature and Its Connection to Decision-Making', expanded=True):
-            st.markdown("""
-            <div class="big-title">Benefits of Each Feature and Its Connection to Decision-Making</div>
+        <h2>Line Chart:</h2>
+        <p>Observe the noise and speed data as line charts based on distance. This allows you to easily identify the correlation between the two indicators.</p>
         
-            <div class="section-title">1. Sidebar</div>
-            <div class="content"><b>Benefit:</b> Allows for customized data analysis, making it easy to explore data by year.</div>
-            <div class="content"><b>Decision-Making Connection:</b> Comparing data by year helps identify specific noise issues during certain periods and determine when maintenance plans may be necessary.</div>
+        <h1>Benefits of Each Feature and Its Connection to Decision-Making</h1>
         
-            <div class="section-title">2. Bar Chart</div>
-            <div class="content"><b>Benefit:</b> Displays the average and maximum values clearly, allowing for intuitive identification of noise issues in specific sections. The minimum speed filter helps focus on noise data occurring in high-speed areas.</div>
-            <div class="content"><b>Decision-Making Connection:</b> Helps assess whether noise issues in high-speed sections between specific stations are critical, guiding decisions on facility inspections and track maintenance needs.</div>
+        <h2>1. Sidebar</h2>
+        <p><strong>Benefit:</strong> Allows for customized data analysis, making it easy to explore data by year.</p>
+        <p><strong>Decision-Making Connection:</strong> Comparing data by year helps identify specific noise issues during certain periods and determine when maintenance plans may be necessary.</p>
         
-            <div class="section-title">3. Line Chart</div>
-            <div class="content"><b>Benefit:</b> Provides a visual representation of the relationship between noise and speed based on distance.</div>
-            <div class="content"><b>Decision-Making Connection:</b> Helps identify whether noise increases at specific speeds or distances, allowing for adjustments to train speeds and the development of noise management strategies for each section.</div>
-            """, unsafe_allow_html=True)
+        <h2>2. Bar Chart</h2>
+        <p><strong>Benefit:</strong> Displays the average and maximum values clearly, allowing for intuitive identification of noise issues in specific sections. The minimum speed filter helps focus on noise data occurring in high-speed areas.</p>
+        <p><strong>Decision-Making Connection:</strong> Helps assess whether noise issues in high-speed sections between specific stations are critical, guiding decisions on facility inspections and track maintenance needs.</p>
+        
+        <h2>3. Line Chart</h2>
+        <p><strong>Benefit:</strong> Provides a visual representation of the relationship between noise and speed based on distance.</p>
+        <p><strong>Decision-Making Connection:</strong> Helps identify whether noise increases at specific speeds or distances, allowing for adjustments to train speeds and the development of noise management strategies for each section.</p>
+        """, unsafe_allow_html=True)
