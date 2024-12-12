@@ -212,34 +212,34 @@ with col[0]:
 # About section
 with col[1]:
     with st.expander('About', expanded=True):
-       st.markdown("""
-    <style>
-        .big-title {
-            font-size: 24px;
-            font-weight: bold;
-        }
-        .section-title {
-            font-size: 20px;
-            font-weight: bold;
-        }
-        .content {
-            font-size: 16px;
-        }
-    </style>
-""", unsafe_allow_html=True)
+        st.markdown("""
+        <style>
+            .big-title {
+                font-size: 24px;
+                font-weight: bold;
+            }
+            .section-title {
+                font-size: 20px;
+                font-weight: bold;
+            }
+            .content {
+                font-size: 16px;
+            }
+        </style>
+        """, unsafe_allow_html=True)
         
         st.write("""
-    <div class="big-title">How to Use the Dashboard for Decision-Making</div>
+        <div class="big-title">How to Use the Dashboard for Decision-Making</div>
 
-    <div class="section-title">1. Sidebar</div>
-    <div class="content">Benefit: Allows for customized data analysis, making it easy to explore data by year.</div>
-    <div class="content">Decision-Making Connection: Comparing data by year helps identify specific noise issues during certain periods and determine when maintenance plans may be necessary.</div>
+        <div class="section-title">1. Sidebar</div>
+        <div class="content">Benefit: Allows for customized data analysis, making it easy to explore data by year.</div>
+        <div class="content">Decision-Making Connection: Comparing data by year helps identify specific noise issues during certain periods and determine when maintenance plans may be necessary.</div>
 
-    <div class="section-title">2. Bar Chart</div>
-    <div class="content">Benefit: Displays the average and maximum values clearly, allowing for intuitive identification of noise issues in specific sections. The minimum speed filter helps focus on noise data occurring in high-speed areas.</div>
-    <div class="content">Decision-Making Connection: Helps assess whether noise issues in high-speed sections between specific stations are critical, guiding decisions on facility inspections and track maintenance needs.</div>
+        <div class="section-title">2. Bar Chart</div>
+        <div class="content">Benefit: Displays the average and maximum values clearly, allowing for intuitive identification of noise issues in specific sections. The minimum speed filter helps focus on noise data occurring in high-speed areas.</div>
+        <div class="content">Decision-Making Connection: Helps assess whether noise issues in high-speed sections between specific stations are critical, guiding decisions on facility inspections and track maintenance needs.</div>
 
-    <div class="section-title">3. Line Chart</div>
-    <div class="content">Benefit: Provides a visual representation of the relationship between noise and speed based on distance.</div>
-    <div class="content">Decision-Making Connection: Helps identify whether noise increases at specific speeds or distances, allowing for adjustments to train speeds and the development of noise management strategies for each section.</div>
-""", unsafe_allow_html=True)
+        <div class="section-title">3. Line Chart</div>
+        <div class="content">Benefit: Provides a visual representation of the relationship between noise and speed based on distance.</div>
+        <div class="content">Decision-Making Connection: Helps identify whether noise increases at specific speeds or distances, allowing for adjustments to train speeds and the development of noise management strategies for each section.</div>
+        """, unsafe_allow_html=True)
