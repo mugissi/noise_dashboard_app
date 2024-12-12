@@ -210,52 +210,54 @@ with col[0]:
     st.plotly_chart(line_fig, use_container_width=True)
 
 
-# CSS 스타일 추가
-st.markdown("""
-    <style>
-        .big-title {
-            font-size: 24px;
-            font-weight: bold;
-        }
-        .section-title {
-            font-size: 20px;
-            font-weight: bold;
-        }
-        .content {
-            font-size: 16px;
-        }
-    </style>
-""", unsafe_allow_html=True)
-
-# 대시보드 사용법
-with st.expander('How to Use the Dashboard for Decision-Making', expanded=True):
-    st.markdown("""
-    <div class="big-title">How to Use the Dashboard for Decision-Making</div>
-
-    <div class="section-title">1. Sidebar</div>
-    <div class="content">You can select a saved CSV file to visualize and check noise data for a specific year. Currently, the noise data for MRTJ from 2018, 2019, and 2020 are available.</div>
-
-    <div class="section-title">2. Bar Chart</div>
-    <div class="content">View the average and maximum noise levels for station pairs. You can also use the minimum speed label to filter and check noise data above a specific speed.</div>
-
-    <div class="section-title">3. Line Chart</div>
-    <div class="content">Observe the noise and speed data as line charts based on distance. This allows you to easily identify the correlation between the two indicators.</div>
-    """, unsafe_allow_html=True)
-
-# 각 기능의 이점 및 의사결정 연결점
-with st.expander('Benefits of Each Feature and Its Connection to Decision-Making', expanded=True):
-    st.markdown("""
-    <div class="big-title">Benefits of Each Feature and Its Connection to Decision-Making</div>
-
-    <div class="section-title">1. Sidebar</div>
-    <div class="content"><b>Benefit:</b> Allows for customized data analysis, making it easy to explore data by year.</div>
-    <div class="content"><b>Decision-Making Connection:</b> Comparing data by year helps identify specific noise issues during certain periods and determine when maintenance plans may be necessary.</div>
-
-    <div class="section-title">2. Bar Chart</div>
-    <div class="content"><b>Benefit:</b> Displays the average and maximum values clearly, allowing for intuitive identification of noise issues in specific sections. The minimum speed filter helps focus on noise data occurring in high-speed areas.</div>
-    <div class="content"><b>Decision-Making Connection:</b> Helps assess whether noise issues in high-speed sections between specific stations are critical, guiding decisions on facility inspections and track maintenance needs.</div>
-
-    <div class="section-title">3. Line Chart</div>
-    <div class="content"><b>Benefit:</b> Provides a visual representation of the relationship between noise and speed based on distance.</div>
-    <div class="content"><b>Decision-Making Connection:</b> Helps identify whether noise increases at specific speeds or distances, allowing for adjustments to train speeds and the development of noise management strategies for each section.</div>
-    """, unsafe_allow_html=True)
+# About section
+with col[1]:
+    with st.expander('About', expanded=True):
+        st.markdown("""
+            <style>
+                .big-title {
+                    font-size: 24px;
+                    font-weight: bold;
+                }
+                .section-title {
+                    font-size: 20px;
+                    font-weight: bold;
+                }
+                .content {
+                    font-size: 16px;
+                }
+            </style>
+        """, unsafe_allow_html=True)
+        
+        # 대시보드 사용법
+        with st.expander('How to Use the Dashboard for Decision-Making', expanded=True):
+            st.markdown("""
+            <div class="big-title">How to Use the Dashboard for Decision-Making</div>
+        
+            <div class="section-title">1. Sidebar</div>
+            <div class="content">You can select a saved CSV file to visualize and check noise data for a specific year. Currently, the noise data for MRTJ from 2018, 2019, and 2020 are available.</div>
+        
+            <div class="section-title">2. Bar Chart</div>
+            <div class="content">View the average and maximum noise levels for station pairs. You can also use the minimum speed label to filter and check noise data above a specific speed.</div>
+        
+            <div class="section-title">3. Line Chart</div>
+            <div class="content">Observe the noise and speed data as line charts based on distance. This allows you to easily identify the correlation between the two indicators.</div>
+            """, unsafe_allow_html=True)
+        
+        # 각 기능의 이점 및 의사결정 연결점
+        with st.expander('Benefits of Each Feature and Its Connection to Decision-Making', expanded=True):
+            st.markdown("""
+            <div class="big-title">Benefits of Each Feature and Its Connection to Decision-Making</div>
+        
+            <div class="section-title">1. Sidebar</div>
+            <div class="content"><b>Benefit:</b> Allows for customized data analysis, making it easy to explore data by year.</div>
+            <div class="content"><b>Decision-Making Connection:</b> Comparing data by year helps identify specific noise issues during certain periods and determine when maintenance plans may be necessary.</div>
+        
+            <div class="section-title">2. Bar Chart</div>
+            <div class="content"><b>Benefit:</b> Displays the average and maximum values clearly, allowing for intuitive identification of noise issues in specific sections. The minimum speed filter helps focus on noise data occurring in high-speed areas.</div>
+            <div class="content"><b>Decision-Making Connection:</b> Helps assess whether noise issues in high-speed sections between specific stations are critical, guiding decisions on facility inspections and track maintenance needs.</div>
+        
+            <div class="section-title">3. Line Chart</div>
+            <div class="content"><b>Benefit:</b> Provides a visual representation of the relationship between noise and speed based on distance.</div>
+            <div class="content"><b>Decision-Making Connection:</b> Helps identify whether noise increases at specific speeds or distances, allowing for adjustments to train speeds and the development of noise management strategies for each section.</div>
+            """, unsafe_allow_html=True)
