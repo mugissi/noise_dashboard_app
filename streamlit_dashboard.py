@@ -211,7 +211,7 @@ with col[0]:
 
 
 # About section
-with col[1]:
+with st.container():
     with st.expander('About', expanded=True):
         st.markdown("""
             <style>
