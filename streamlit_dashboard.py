@@ -212,18 +212,21 @@ with col[0]:
 # About section
 with col[1]:
     with st.expander('About', expanded=True):
-        st.markdown("""
-        <style>
-        .st-expanderHeader {
-            background-color: #444444;
-            color: #ffffff;
+       st.markdown("""
+    <style>
+        .big-title {
+            font-size: 24px;
+            font-weight: bold;
         }
-        .st-expanderContent {
-            background-color: #555555;
-            color: #ffffff;
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
         }
-        </style>
-        """, unsafe_allow_html=True)
+        .content {
+            font-size: 16px;
+        }
+    </style>
+""", unsafe_allow_html=True)
         
         st.write("""
     <div class="big-title">How to Use the Dashboard for Decision-Making</div>
