@@ -210,8 +210,7 @@ with col[0]:
     st.plotly_chart(line_fig, use_container_width=True)
 
 
-# About section
-with st.container():
+with col1:
     with st.expander('About', expanded=True):
         st.markdown("""
             <style>
@@ -228,7 +227,7 @@ with st.container():
                 }
             </style>
         """, unsafe_allow_html=True)
-        
+
         # 대시보드 사용법
         with st.expander('How to Use the Dashboard for Decision-Making', expanded=True):
             st.markdown("""
@@ -243,7 +242,7 @@ with st.container():
             <div class="section-title">3. Line Chart</div>
             <div class="content">Observe the noise and speed data as line charts based on distance. This allows you to easily identify the correlation between the two indicators.</div>
             """, unsafe_allow_html=True)
-        
+
         # 각 기능의 이점 및 의사결정 연결점
         with st.expander('Benefits of Each Feature and Its Connection to Decision-Making', expanded=True):
             st.markdown("""
